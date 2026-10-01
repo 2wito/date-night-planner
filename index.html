@@ -1,0 +1,934 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>מתכננים דייט 💕</title>
+<meta name="description" content="מתכננים יחד את הדייט המושלם">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FFF8F3;
+    --card:#FFFDF9;
+    --rose-deep:#A23B5C;
+    --rose-mid:#BE4F74;
+    --pink-soft:#F6D9DF;
+    --pink-soft-2:#FBE8EC;
+    --peach:#F3B998;
+    --gold:#E3A857;
+    --ink:#4A2436;
+    --ink-muted:#7A4A58;
+    --shadow-warm: 0 20px 50px -18px rgba(162,59,92,0.35), 0 2px 10px rgba(162,59,92,0.12);
+    --radius-card: 28px;
+    --radius-pill: 999px;
+    --ease: cubic-bezier(.22,1,.36,1);
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+
+  html,body{
+    margin:0;
+    padding:0;
+    min-height:100%;
+    background:var(--cream);
+  }
+
+  body{
+    font-family:'Assistant', sans-serif;
+    color:var(--ink);
+    min-height:100dvh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px 16px;
+    position:relative;
+    overflow-x:hidden;
+    background:
+      radial-gradient(circle at 15% 10%, var(--pink-soft-2) 0%, transparent 45%),
+      radial-gradient(circle at 85% 85%, var(--peach) 0%, transparent 40%),
+      var(--cream);
+  }
+
+  h1,h2,h3{
+    font-family:'Frank Ruhl Libre', serif;
+    margin:0;
+    font-weight:700;
+    color:var(--rose-deep);
+  }
+
+  /* ---------- ambient decoration ---------- */
+  .bg-decor{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    overflow:hidden;
+    z-index:0;
+  }
+  .bg-decor span{
+    position:absolute;
+    opacity:.35;
+    filter:saturate(1.1);
+    animation: float 9s ease-in-out infinite;
+  }
+  .bg-decor span:nth-child(1){ top:8%;  right:8%;  font-size:34px; animation-delay:0s; color:var(--rose-mid); }
+  .bg-decor span:nth-child(2){ top:70%; right:4%;  font-size:22px; animation-delay:1.2s; color:var(--gold); }
+  .bg-decor span:nth-child(3){ top:22%; left:6%;   font-size:20px; animation-delay:2.1s; color:var(--peach); }
+  .bg-decor span:nth-child(4){ top:80%; left:12%;  font-size:30px; animation-delay:.6s; color:var(--rose-deep); }
+  .bg-decor span:nth-child(5){ top:46%; left:2%;   font-size:16px; animation-delay:1.8s; color:var(--rose-mid); }
+  .bg-decor span:nth-child(6){ top:4%;  left:40%;  font-size:18px; animation-delay:2.6s; color:var(--gold); }
+
+  @keyframes float{
+    0%,100%{ transform:translateY(0) rotate(0deg); }
+    50%{ transform:translateY(-14px) rotate(8deg); }
+  }
+
+  /* ---------- app shell ---------- */
+  .app{
+    position:relative;
+    z-index:1;
+    width:100%;
+    max-width:440px;
+  }
+
+  .wizard-card{
+    background:var(--card);
+    border-radius:var(--radius-card);
+    box-shadow:var(--shadow-warm);
+    padding:30px 24px 24px;
+    position:relative;
+    overflow:hidden;
+    border:1px solid rgba(162,59,92,0.08);
+  }
+
+  .wizard-card::before{
+    content:"";
+    position:absolute;
+    top:-60px;
+    inset-inline-end:-60px;
+    width:150px;
+    height:150px;
+    background:radial-gradient(circle, var(--pink-soft) 0%, transparent 70%);
+    pointer-events:none;
+  }
+
+  /* ---------- progress trail of hearts ---------- */
+  .progress-trail{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:22px;
+    position:relative;
+    z-index:1;
+  }
+  .progress-trail .heart{
+    width:13px;
+    height:13px;
+    position:relative;
+    transform:rotate(-45deg);
+    background:var(--pink-soft);
+    transition: background .5s var(--ease), transform .5s var(--ease);
+  }
+  .progress-trail .heart::before,
+  .progress-trail .heart::after{
+    content:"";
+    position:absolute;
+    width:13px;
+    height:13px;
+    border-radius:50%;
+    background:inherit;
+    transition: background .5s var(--ease);
+  }
+  .progress-trail .heart::before{ top:-6.5px; left:0; }
+  .progress-trail .heart::after{ left:6.5px; top:0; }
+  .progress-trail .heart.filled{
+    background:var(--rose-mid);
+    transform:rotate(-45deg) scale(1.15);
+  }
+  .progress-trail .heart.current{
+    background:var(--gold);
+    transform:rotate(-45deg) scale(1.3);
+  }
+
+  /* ---------- step viewport ---------- */
+  .step-viewport{
+    position:relative;
+    min-height:300px;
+  }
+
+  .step{
+    display:none;
+    text-align:center;
+  }
+  .step.active{
+    display:block;
+    animation: step-in .5s var(--ease);
+  }
+  .step.leaving-back{ animation: step-in-back .5s var(--ease); }
+
+  @keyframes step-in{
+    from{ opacity:0; transform:translateX(18px); }
+    to{ opacity:1; transform:translateX(0); }
+  }
+  @keyframes step-in-back{
+    from{ opacity:0; transform:translateX(-18px); }
+    to{ opacity:1; transform:translateX(0); }
+  }
+
+  .step h2{
+    font-size:1.5rem;
+    line-height:1.3;
+  }
+  .step .subtext{
+    color:var(--ink-muted);
+    font-size:.95rem;
+    margin-top:8px;
+    margin-bottom:22px;
+  }
+
+  .eyebrow-icon{
+    font-size:2.2rem;
+    display:block;
+    margin-bottom:6px;
+  }
+
+  /* ---------- welcome step ---------- */
+  .welcome-illustration{
+    font-size:3.4rem;
+    margin-bottom:10px;
+    animation: pulse-heart 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse-heart{
+    0%,100%{ transform:scale(1); }
+    50%{ transform:scale(1.1); }
+  }
+  .step[data-step="welcome"] h1{
+    font-size:1.75rem;
+    line-height:1.35;
+  }
+  .step[data-step="welcome"] .subtext{
+    margin-top:12px;
+    font-size:1rem;
+  }
+
+  /* ---------- date/time inputs ---------- */
+  .field-group{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    margin-bottom:6px;
+    text-align:start;
+  }
+  .field{
+    background:var(--pink-soft-2);
+    border-radius:18px;
+    padding:14px 16px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    border:2px solid transparent;
+    transition: border-color .25s var(--ease), background .25s var(--ease);
+  }
+  .field:focus-within{
+    border-color:var(--rose-mid);
+    background:var(--card);
+  }
+  .field .field-icon{ font-size:1.3rem; flex-shrink:0; }
+  .field label{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    width:100%;
+  }
+  .field .field-label{
+    font-size:.78rem;
+    color:var(--ink-muted);
+    font-weight:600;
+  }
+  .field input{
+    border:none;
+    background:transparent;
+    font-family:'Assistant', sans-serif;
+    font-size:1.05rem;
+    font-weight:600;
+    color:var(--ink);
+    width:100%;
+    outline:none;
+    padding:0;
+    color-scheme: light;
+  }
+
+  /* ---------- choice cards ---------- */
+  .choices{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .choices.grid-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+
+  .choice-card{
+    appearance:none;
+    border:2px solid var(--pink-soft);
+    background:var(--pink-soft-2);
+    border-radius:20px;
+    padding:16px 14px;
+    font-family:'Assistant', sans-serif;
+    font-size:1.02rem;
+    font-weight:600;
+    color:var(--ink);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    text-align:center;
+    transition: transform .22s var(--ease), border-color .22s var(--ease), background .22s var(--ease), box-shadow .22s var(--ease);
+    position:relative;
+    min-height:64px;
+    line-height:1.3;
+  }
+  .choices.grid-2 .choice-card{
+    flex-direction:column;
+    gap:6px;
+    font-size:.92rem;
+    padding:16px 8px;
+  }
+  .choices.grid-2 .choice-card .emoji{ font-size:1.6rem; }
+
+  .choice-card:hover{
+    transform:translateY(-2px);
+    border-color:var(--rose-mid);
+  }
+  .choice-card:active{ transform:translateY(0) scale(.98); }
+
+  .choice-card:focus-visible{
+    outline:3px solid var(--gold);
+    outline-offset:2px;
+  }
+
+  .choice-card.selected{
+    background:linear-gradient(135deg, var(--rose-mid), var(--rose-deep));
+    border-color:var(--rose-deep);
+    color:#fff;
+    box-shadow:0 10px 24px -10px rgba(162,59,92,0.55);
+    transform:translateY(-2px);
+  }
+  .choice-card.selected::after{
+    content:"✓";
+    position:absolute;
+    top:6px;
+    inset-inline-end:10px;
+    font-size:.85rem;
+    color:var(--gold);
+    font-weight:700;
+  }
+
+  /* ---------- nav buttons ---------- */
+  .nav-buttons{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    margin-top:26px;
+  }
+
+  .btn{
+    font-family:'Assistant', sans-serif;
+    font-weight:700;
+    font-size:1rem;
+    border-radius:var(--radius-pill);
+    padding:13px 22px;
+    cursor:pointer;
+    border:none;
+    transition: transform .2s var(--ease), box-shadow .2s var(--ease), opacity .2s var(--ease);
+  }
+  .btn:active{ transform:scale(.96); }
+  .btn:focus-visible{ outline:3px solid var(--gold); outline-offset:2px; }
+
+  .btn-back{
+    background:transparent;
+    color:var(--ink-muted);
+    padding:13px 16px;
+  }
+  .btn-back:hover{ color:var(--rose-deep); }
+  .btn-back:disabled{ visibility:hidden; }
+
+  .btn-next{
+    background:linear-gradient(135deg, var(--rose-mid), var(--rose-deep));
+    color:#fff;
+    box-shadow:0 12px 24px -10px rgba(162,59,92,0.55);
+    flex:1;
+    max-width:200px;
+  }
+  .btn-next:disabled{
+    opacity:.4;
+    cursor:not-allowed;
+    box-shadow:none;
+  }
+  .btn-next:not(:disabled):hover{
+    transform:translateY(-1px);
+  }
+
+  .btn-primary-wide{
+    background:linear-gradient(135deg, var(--rose-mid), var(--rose-deep));
+    color:#fff;
+    box-shadow:0 12px 24px -10px rgba(162,59,92,0.55);
+    width:100%;
+    padding:15px 22px;
+    font-size:1.05rem;
+  }
+
+  .btn-ghost-wide{
+    background:var(--pink-soft-2);
+    color:var(--rose-deep);
+    width:100%;
+    padding:14px 22px;
+    margin-top:12px;
+  }
+
+  /* ---------- summary ---------- */
+  .summary-heart{
+    font-size:2.6rem;
+    margin-bottom:4px;
+  }
+  .summary-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin:22px 0;
+    text-align:start;
+  }
+  .summary-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:var(--pink-soft-2);
+    border-radius:16px;
+    padding:12px 14px;
+  }
+  .summary-row .icon{ font-size:1.3rem; flex-shrink:0; }
+  .summary-row .text{ font-weight:600; font-size:.98rem; }
+  .summary-row .text .sub{
+    display:block;
+    font-size:.78rem;
+    color:var(--ink-muted);
+    font-weight:600;
+    margin-bottom:1px;
+  }
+
+  .closing-line{
+    font-family:'Frank Ruhl Libre', serif;
+    color:var(--rose-deep);
+    font-size:1.15rem;
+    margin-top:6px;
+    margin-bottom:4px;
+  }
+
+  /* ---------- confetti canvas ---------- */
+  #confetti-canvas{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    z-index:50;
+  }
+
+  @media (max-width:360px){
+    .wizard-card{ padding:24px 18px 20px; }
+    .choices.grid-2 .choice-card{ font-size:.86rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{
+      animation-duration:0.001ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:0.001ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <div class="bg-decor" aria-hidden="true">
+    <span>❤</span><span>✦</span><span>❀</span><span>❤</span><span>✦</span><span>❀</span>
+  </div>
+
+  <main class="app">
+    <div class="wizard-card" id="card">
+
+      <div class="progress-trail" id="progressTrail" aria-hidden="true"></div>
+
+      <div class="step-viewport">
+
+        <!-- Welcome -->
+        <section class="step" data-step="welcome">
+          <div class="welcome-illustration">💌</div>
+          <h1>מתכננים ערב רומנטי?</h1>
+          <p class="subtext">כמה שאלות קטנות, ובסוף תצא לנו תוכנית מושלמת לדייט שלנו</p>
+          <button class="btn btn-primary-wide" id="startBtn" type="button">בואי נתחיל 💕</button>
+        </section>
+
+        <!-- Step: when -->
+        <section class="step" data-step="when">
+          <span class="eyebrow-icon">📅</span>
+          <h2>מתי נפגשים?</h2>
+          <p class="subtext">תבחרי תאריך ושעה שנוחים לך</p>
+          <div class="field-group">
+            <div class="field">
+              <span class="field-icon">📆</span>
+              <label>
+                <span class="field-label">תאריך</span>
+                <input type="date" id="dateInput" />
+              </label>
+            </div>
+            <div class="field">
+              <span class="field-icon">🕐</span>
+              <label>
+                <span class="field-label">שעה</span>
+                <input type="time" id="timeInput" />
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- Step: where -->
+        <section class="step" data-step="where">
+          <span class="eyebrow-icon">📍</span>
+          <h2>איפה נפגשים?</h2>
+          <p class="subtext">בבית נעים ואינטימי, או יציאה לבלות?</p>
+          <div class="choices" data-group="where">
+            <button class="choice-card" data-value="home" type="button"><span class="emoji">🏠</span> נשארים בבית</button>
+            <button class="choice-card" data-value="out" type="button"><span class="emoji">🍾</span> יוצאים לבלות</button>
+          </div>
+        </section>
+
+        <!-- Step: food (home branch) -->
+        <section class="step" data-step="food">
+          <span class="eyebrow-icon">🍳</span>
+          <h2>מה אוכלים?</h2>
+          <p class="subtext">לבשל ביחד, או להזמין ולהתפנק?</p>
+          <div class="choices" data-group="sub3">
+            <button class="choice-card" data-value="cook" type="button"><span class="emoji">👩‍🍳</span> מכינים אוכל ביחד</button>
+            <button class="choice-card" data-value="delivery" type="button"><span class="emoji">🛵</span> מזמינים משלוח מפנק</button>
+          </div>
+        </section>
+
+        <!-- Step: vibe (out branch) -->
+        <section class="step" data-step="vibe">
+          <span class="eyebrow-icon">🌙</span>
+          <h2>מה האווירה?</h2>
+          <p class="subtext">ארוחה רגועה, או דרינקים ובר?</p>
+          <div class="choices" data-group="sub3">
+            <button class="choice-card" data-value="restaurant" type="button"><span class="emoji">🍽️</span> ארוחה במסעדה</button>
+            <button class="choice-card" data-value="bar" type="button"><span class="emoji">🍸</span> דרינק ואלכוהול בבר</button>
+          </div>
+        </section>
+
+        <!-- Step: cuisine (food/restaurant branch) -->
+        <section class="step" data-step="cuisine">
+          <span class="eyebrow-icon">🍜</span>
+          <h2>איזה מטבח מפתה?</h2>
+          <p class="subtext">תבחרי את הטעם שהכי מתחשק לך</p>
+          <div class="choices grid-2" data-group="style">
+            <button class="choice-card" data-value="asian" type="button"><span class="emoji">🥢</span>אסייתי</button>
+            <button class="choice-card" data-value="italian" type="button"><span class="emoji">🍝</span>איטלקי</button>
+            <button class="choice-card" data-value="thai" type="button"><span class="emoji">🇹🇭</span>תאילנדי</button>
+            <button class="choice-card" data-value="burger" type="button"><span class="emoji">🍔</span>המבורגר / בשרים</button>
+            <button class="choice-card" data-value="sushi" type="button"><span class="emoji">🍣</span>סושי</button>
+            <button class="choice-card" data-value="mexican" type="button"><span class="emoji">🌮</span>מקסיקני</button>
+          </div>
+        </section>
+
+        <!-- Step: bar style (bar branch) -->
+        <section class="step" data-step="barstyle">
+          <span class="eyebrow-icon">🍷</span>
+          <h2>מה הסגנון?</h2>
+          <p class="subtext">לאיזו אווירה מתחשק לך הערב?</p>
+          <div class="choices" data-group="style">
+            <button class="choice-card" data-value="cocktail" type="button"><span class="emoji">🍸</span> בר קוקטיילים מושקע</button>
+            <button class="choice-card" data-value="pub" type="button"><span class="emoji">🍺</span> פאב שקט ואינטימי</button>
+            <button class="choice-card" data-value="wine" type="button"><span class="emoji">🍷</span> בר יין רומנטי</button>
+          </div>
+        </section>
+
+        <!-- Step: summary -->
+        <section class="step" data-step="summary">
+          <div class="summary-heart">❤️</div>
+          <h2>יש לנו דייט מושלם!</h2>
+          <div class="summary-list" id="summaryList"></div>
+          <p class="closing-line">מחכה כבר לראות אותך! 😘</p>
+          <button class="btn btn-ghost-wide" id="restartBtn" type="button">לתכנן דייט אחר</button>
+        </section>
+
+      </div>
+
+      <div class="nav-buttons" id="navButtons" style="display:none;">
+        <button class="btn btn-back" id="backBtn" type="button">חזרה</button>
+        <button class="btn btn-next" id="nextBtn" type="button" disabled>הבא</button>
+      </div>
+
+    </div>
+  </main>
+
+<script>
+(function(){
+  "use strict";
+
+  var state = {
+    date: "",
+    time: "",
+    where: "",   // home | out
+    sub3: "",    // cook | delivery | restaurant | bar
+    style: ""    // cuisine or bar style value
+  };
+
+  var labels = {
+    where: { home: "נשארים בבית 🏠", out: "יוצאים לבלות 🍾" },
+    sub3: {
+      cook: "מכינים אוכל ביחד 👩‍🍳",
+      delivery: "מזמינים משלוח מפנק 🛵",
+      restaurant: "ארוחה במסעדה 🍽️",
+      bar: "דרינק ואלכוהול בבר 🍸"
+    },
+    style: {
+      asian: "אסייתי 🥢",
+      italian: "איטלקי 🍝",
+      thai: "תאילנדי 🇹🇭",
+      burger: "המבורגר / בשרים 🍔",
+      sushi: "סושי 🍣",
+      mexican: "מקסיקני 🌮",
+      cocktail: "בר קוקטיילים מושקע 🍸",
+      pub: "פאב שקט ואינטימי 🍺",
+      wine: "בר יין רומנטי 🍷"
+    }
+  };
+
+  var QUESTION_STEPS = ["when","where","sub3-slot","style-slot"]; // logical slots for progress (4 hearts)
+
+  function currentPath(){
+    var path = ["when","where"];
+    if(state.where === "home"){ path.push("food"); }
+    else if(state.where === "out"){ path.push("vibe"); }
+    // else: no third step chosen yet, stop here until "where" answered
+
+    if(state.sub3 === "cook" || state.sub3 === "delivery" || state.sub3 === "restaurant"){
+      path.push("cuisine");
+    } else if(state.sub3 === "bar"){
+      path.push("barstyle");
+    }
+
+    if(state.style){ path.push("summary"); }
+    return path;
+  }
+
+  var currentIndex = -1; // -1 = welcome
+  var cardEl = document.getElementById("card");
+  var navButtons = document.getElementById("navButtons");
+  var backBtn = document.getElementById("backBtn");
+  var nextBtn = document.getElementById("nextBtn");
+  var progressTrail = document.getElementById("progressTrail");
+  var steps = document.querySelectorAll(".step");
+
+  function stepEl(name){
+    return document.querySelector('.step[data-step="' + name + '"]');
+  }
+
+  function showStep(name, direction){
+    steps.forEach(function(s){ s.classList.remove("active","leaving-back"); });
+    var el = stepEl(name);
+    if(el){
+      el.classList.add("active");
+      if(direction === "back"){ el.classList.add("leaving-back"); }
+    }
+  }
+
+  function groupNameForStep(stepName){
+    if(stepName === "where") return "where";
+    if(stepName === "food" || stepName === "vibe") return "sub3";
+    if(stepName === "cuisine" || stepName === "barstyle") return "style";
+    return null;
+  }
+
+  function slotIndexForStep(stepName){
+    // maps a real step name to a progress-slot index (0..3)
+    if(stepName === "when") return 0;
+    if(stepName === "where") return 1;
+    if(stepName === "food" || stepName === "vibe") return 2;
+    if(stepName === "cuisine" || stepName === "barstyle") return 3;
+    return -1;
+  }
+
+  function renderProgress(stepName){
+    progressTrail.innerHTML = "";
+    if(stepName === "welcome" || stepName === "summary"){
+      navButtons.style.display = stepName === "summary" ? "none" : "none";
+      return;
+    }
+    var activeSlot = slotIndexForStep(stepName);
+    for(var i = 0; i < 4; i++){
+      var h = document.createElement("span");
+      h.className = "heart";
+      if(i < activeSlot) h.classList.add("filled");
+      if(i === activeSlot) h.classList.add("current");
+      progressTrail.appendChild(h);
+    }
+  }
+
+  function syncSelectedCards(stepName){
+    var group = groupNameForStep(stepName);
+    if(!group) return;
+    var el = stepEl(stepName);
+    if(!el) return;
+    var value = state[group];
+    el.querySelectorAll(".choice-card").forEach(function(btn){
+      btn.classList.toggle("selected", btn.dataset.value === value);
+    });
+  }
+
+  function isStepValid(stepName){
+    if(stepName === "when") return !!(state.date && state.time);
+    if(stepName === "where") return !!state.where;
+    if(stepName === "food" || stepName === "vibe") return !!state.sub3;
+    if(stepName === "cuisine" || stepName === "barstyle") return !!state.style;
+    return true;
+  }
+
+  function goToStep(stepName, direction){
+    var path = currentPath();
+    currentIndex = path.indexOf(stepName);
+    showStep(stepName, direction);
+    renderProgress(stepName);
+    syncSelectedCards(stepName);
+
+    if(stepName === "summary"){
+      navButtons.style.display = "none";
+      renderSummary();
+      launchConfetti();
+    } else {
+      navButtons.style.display = "flex";
+      backBtn.disabled = (currentIndex === 0);
+      nextBtn.disabled = !isStepValid(stepName);
+      var isFinalQuestion = (stepName === "cuisine" || stepName === "barstyle");
+      nextBtn.textContent = isFinalQuestion ? "סיימנו 🎉" : "הבא";
+    }
+  }
+
+  function goNext(){
+    var path = currentPath();
+    var stepName = path[currentIndex];
+    if(!isStepValid(stepName)) return;
+    var nextName = path[currentIndex + 1];
+    if(!nextName){
+      // recompute path now that an answer may unlock a new next step
+      path = currentPath();
+      nextName = path[currentIndex + 1];
+    }
+    if(nextName){
+      goToStep(nextName, "forward");
+    }
+  }
+
+  function goBack(){
+    var path = currentPath();
+    if(currentIndex <= 0){
+      // back to welcome
+      currentIndex = -1;
+      showStep("welcome");
+      navButtons.style.display = "none";
+      progressTrail.innerHTML = "";
+      return;
+    }
+    var prevName = path[currentIndex - 1];
+    goToStep(prevName, "back");
+  }
+
+  // ---------- wiring ----------
+  document.getElementById("startBtn").addEventListener("click", function(){
+    goToStep("when", "forward");
+  });
+
+  document.getElementById("dateInput").addEventListener("input", function(e){
+    state.date = e.target.value;
+    nextBtn.disabled = !isStepValid("when");
+  });
+  document.getElementById("timeInput").addEventListener("input", function(e){
+    state.time = e.target.value;
+    nextBtn.disabled = !isStepValid("when");
+  });
+
+  document.querySelectorAll(".choices").forEach(function(group){
+    group.addEventListener("click", function(e){
+      var btn = e.target.closest(".choice-card");
+      if(!btn) return;
+      var groupName = group.dataset.group;
+      var value = btn.dataset.value;
+
+      if(groupName === "where"){
+        state.where = value;
+        // changing location invalidates downstream answers
+        state.sub3 = "";
+        state.style = "";
+      } else if(groupName === "sub3"){
+        state.sub3 = value;
+        state.style = "";
+      } else if(groupName === "style"){
+        state.style = value;
+      }
+
+      group.querySelectorAll(".choice-card").forEach(function(b){
+        b.classList.toggle("selected", b === btn);
+      });
+
+      var stepName = group.closest(".step").dataset.step;
+      nextBtn.disabled = !isStepValid(stepName);
+    });
+  });
+
+  nextBtn.addEventListener("click", goNext);
+  backBtn.addEventListener("click", goBack);
+
+  document.getElementById("restartBtn").addEventListener("click", function(){
+    state = { date:"", time:"", where:"", sub3:"", style:"" };
+    document.getElementById("dateInput").value = "";
+    document.getElementById("timeInput").value = "";
+    document.querySelectorAll(".choice-card.selected").forEach(function(b){ b.classList.remove("selected"); });
+    currentIndex = -1;
+    showStep("welcome");
+    navButtons.style.display = "none";
+    progressTrail.innerHTML = "";
+  });
+
+  // ---------- summary rendering ----------
+  function formatDateHe(dateStr){
+    if(!dateStr) return "";
+    var parts = dateStr.split("-");
+    var d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    try{
+      return new Intl.DateTimeFormat("he-IL", { weekday:"long", day:"numeric", month:"long" }).format(d);
+    }catch(err){
+      return dateStr;
+    }
+  }
+
+  function renderSummary(){
+    var list = document.getElementById("summaryList");
+    list.innerHTML = "";
+
+    var rows = [
+      { icon:"📅", sub:"תאריך", text: formatDateHe(state.date) },
+      { icon:"🕐", sub:"שעה", text: state.time },
+      { icon: state.where === "home" ? "🏠" : "🍾", sub:"מיקום", text: labels.where[state.where] || "" },
+      { icon:"✨", sub:"תוכנית", text: labels.sub3[state.sub3] || "" },
+      { icon:"💫", sub:"סגנון", text: labels.style[state.style] || "" }
+    ];
+
+    rows.forEach(function(r){
+      var row = document.createElement("div");
+      row.className = "summary-row";
+      row.innerHTML = '<span class="icon">' + r.icon + '</span>' +
+        '<span class="text"><span class="sub">' + r.sub + '</span>' + r.text + '</span>';
+      list.appendChild(row);
+    });
+  }
+
+  // ---------- confetti ----------
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function launchConfetti(){
+    var canvas = document.getElementById("confetti-canvas");
+    if(!canvas){
+      canvas = document.createElement("canvas");
+      canvas.id = "confetti-canvas";
+      document.body.appendChild(canvas);
+    }
+    var ctx = canvas.getContext("2d");
+    var dpr = window.devicePixelRatio || 1;
+
+    function resize(){
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = window.innerWidth + "px";
+      canvas.style.height = window.innerHeight + "px";
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+    resize();
+
+    var colors = ["#A23B5C", "#D8637E", "#F3B998", "#E3A857", "#F6D9DF"];
+    var count = reduceMotion ? 18 : 90;
+    var duration = reduceMotion ? 1200 : 3600;
+    var particles = [];
+
+    for(var i = 0; i < count; i++){
+      particles.push({
+        x: Math.random() * window.innerWidth,
+        y: -20 - Math.random() * window.innerHeight * 0.4,
+        size: 6 + Math.random() * 8,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        isHeart: Math.random() > 0.5,
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: (Math.random() - 0.5) * 0.2,
+        speedY: 1.5 + Math.random() * 2.5,
+        speedX: (Math.random() - 0.5) * 1.6,
+        sway: Math.random() * Math.PI * 2
+      });
+    }
+
+    function drawHeart(p){
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation);
+      ctx.fillStyle = p.color;
+      var s = p.size / 2;
+      ctx.beginPath();
+      ctx.moveTo(0, s * 0.6);
+      ctx.bezierCurveTo(-s, -s * 0.4, -s * 0.4, -s * 1.3, 0, -s * 0.2);
+      ctx.bezierCurveTo(s * 0.4, -s * 1.3, s, -s * 0.4, 0, s * 0.6);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawCircle(p){
+      ctx.save();
+      ctx.beginPath();
+      ctx.fillStyle = p.color;
+      ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    var start = null;
+    function frame(ts){
+      if(!start) start = ts;
+      var elapsed = ts - start;
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+      particles.forEach(function(p){
+        p.y += p.speedY;
+        p.x += p.speedX + Math.sin(p.sway + elapsed / 500) * 0.6;
+        p.rotation += p.rotationSpeed;
+        if(p.isHeart) drawHeart(p); else drawCircle(p);
+      });
+
+      if(elapsed < duration){
+        requestAnimationFrame(frame);
+      } else {
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      }
+    }
+    requestAnimationFrame(frame);
+
+    window.addEventListener("resize", resize);
+  }
+
+  // init
+  showStep("welcome");
+})();
+</script>
+</body>
+</html>
