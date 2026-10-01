@@ -98,19 +98,29 @@
     box-shadow:var(--shadow-warm);
     padding:30px 24px 24px;
     position:relative;
-    overflow:hidden;
     border:1px solid rgba(162,59,92,0.08);
   }
 
+  /* Note: deliberately NOT clipped with overflow:hidden on .wizard-card, and
+     deliberately NOT poking outside the box via negative inset values —
+     combining overflow:hidden with a descendant positioned past the box
+     edge triggers a Chromium layout bug in RTL that shifts all in-flow
+     content (and an unclipped poking element overflows the viewport
+     instead). Keeping the glow fully inside its own box and nudging it
+     purely with a transform (paint-only, doesn't affect layout/scrollable
+     overflow) sidesteps both failure modes. */
   .wizard-card::before{
     content:"";
     position:absolute;
-    top:-60px;
-    inset-inline-end:-60px;
+    top:0;
+    inset-inline-end:0;
     width:150px;
     height:150px;
+    border-radius:50%;
     background:radial-gradient(circle, var(--pink-soft) 0%, transparent 70%);
     pointer-events:none;
+    z-index:0;
+    transform:translate(40px,-40px);
   }
 
   /* ---------- progress trail of hearts ---------- */
@@ -177,7 +187,7 @@
   }
 
   .step h2{
-    font-size:1.5rem;
+    font-size:1.45rem;
     line-height:1.3;
   }
   .step .subtext{
@@ -188,27 +198,43 @@
   }
 
   .eyebrow-icon{
-    font-size:2.2rem;
+    font-size:2.1rem;
     display:block;
     margin-bottom:6px;
   }
 
-  /* ---------- welcome step ---------- */
-  .welcome-illustration{
-    font-size:3.4rem;
-    margin-bottom:10px;
-    animation: pulse-heart 2.4s ease-in-out infinite;
+  /* ---------- welcome step + cover photo ---------- */
+  .cover-photo-frame{
+    width:168px;
+    height:168px;
+    margin:0 auto 14px;
+    border-radius:20px;
+    overflow:hidden;
+    border:6px solid #fff;
+    box-shadow:0 18px 36px -14px rgba(162,59,92,0.45);
+    transform:rotate(-3deg);
+    position:relative;
   }
-  @keyframes pulse-heart{
-    0%,100%{ transform:scale(1); }
-    50%{ transform:scale(1.1); }
+  .cover-photo-frame img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
   }
+  .cover-photo-frame .badge{
+    position:absolute;
+    bottom:-6px;
+    inset-inline-end:-10px;
+    font-size:1.6rem;
+    transform:rotate(12deg);
+  }
+
   .step[data-step="welcome"] h1{
-    font-size:1.75rem;
+    font-size:1.65rem;
     line-height:1.35;
   }
   .step[data-step="welcome"] .subtext{
-    margin-top:12px;
+    margin-top:10px;
     font-size:1rem;
   }
 
@@ -270,13 +296,16 @@
     grid-template-columns:1fr 1fr;
     gap:12px;
   }
+  .choices.grid-2 .choice-card:last-child:nth-child(odd){
+    grid-column: 1 / -1;
+  }
 
   .choice-card{
     appearance:none;
     border:2px solid var(--pink-soft);
     background:var(--pink-soft-2);
     border-radius:20px;
-    padding:16px 14px;
+    padding:14px;
     font-family:'Assistant', sans-serif;
     font-size:1.02rem;
     font-weight:600;
@@ -285,13 +314,37 @@
     display:flex;
     align-items:center;
     justify-content:center;
-    gap:10px;
+    gap:12px;
     text-align:center;
     transition: transform .22s var(--ease), border-color .22s var(--ease), background .22s var(--ease), box-shadow .22s var(--ease);
     position:relative;
     min-height:64px;
     line-height:1.3;
   }
+  .choice-card.has-photo{
+    justify-content:flex-start;
+    text-align:start;
+    padding:10px;
+  }
+  .choice-card .card-photo{
+    width:52px;
+    height:52px;
+    border-radius:14px;
+    object-fit:cover;
+    flex-shrink:0;
+    box-shadow:0 4px 10px -4px rgba(162,59,92,0.4);
+    transition: box-shadow .22s var(--ease);
+  }
+  .choice-card.selected .card-photo{
+    box-shadow:0 0 0 2px var(--gold), 0 4px 10px -4px rgba(162,59,92,0.4);
+  }
+  .choice-card .card-text{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+
   .choices.grid-2 .choice-card{
     flex-direction:column;
     gap:6px;
@@ -392,15 +445,36 @@
   }
 
   /* ---------- summary ---------- */
-  .summary-heart{
-    font-size:2.6rem;
-    margin-bottom:4px;
+  .summary-photo-frame{
+    width:150px;
+    height:150px;
+    margin:0 auto 10px;
+    border-radius:18px;
+    overflow:hidden;
+    border:6px solid #fff;
+    box-shadow:0 18px 36px -14px rgba(162,59,92,0.45);
+    transform:rotate(3deg);
+    position:relative;
   }
+  .summary-photo-frame img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .summary-photo-frame .badge{
+    position:absolute;
+    bottom:-8px;
+    inset-inline-start:-8px;
+    font-size:1.6rem;
+    transform:rotate(-10deg);
+  }
+
   .summary-list{
     display:flex;
     flex-direction:column;
     gap:10px;
-    margin:22px 0;
+    margin:18px 0;
     text-align:start;
   }
   .summary-row{
@@ -442,6 +516,7 @@
   @media (max-width:360px){
     .wizard-card{ padding:24px 18px 20px; }
     .choices.grid-2 .choice-card{ font-size:.86rem; }
+    .cover-photo-frame{ width:140px; height:140px; }
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -468,7 +543,10 @@
 
         <!-- Welcome -->
         <section class="step" data-step="welcome">
-          <div class="welcome-illustration">💌</div>
+          <div class="cover-photo-frame">
+            <img src="images/cover-beach.jpg" alt="" loading="eager">
+            <span class="badge">💕</span>
+          </div>
           <h1>מתכננים ערב רומנטי?</h1>
           <p class="subtext">כמה שאלות קטנות, ובסוף תצא לנו תוכנית מושלמת לדייט שלנו</p>
           <button class="btn btn-primary-wide" id="startBtn" type="button">בואי נתחיל 💕</button>
@@ -497,69 +575,165 @@
           </div>
         </section>
 
-        <!-- Step: where -->
-        <section class="step" data-step="where">
-          <span class="eyebrow-icon">📍</span>
-          <h2>איפה נפגשים?</h2>
-          <p class="subtext">בבית נעים ואינטימי, או יציאה לבלות?</p>
-          <div class="choices" data-group="where">
-            <button class="choice-card" data-value="home" type="button"><span class="emoji">🏠</span> נשארים בבית</button>
-            <button class="choice-card" data-value="out" type="button"><span class="emoji">🍾</span> יוצאים לבלות</button>
-          </div>
-        </section>
-
-        <!-- Step: food (home branch) -->
-        <section class="step" data-step="food">
-          <span class="eyebrow-icon">🍳</span>
-          <h2>מה אוכלים?</h2>
-          <p class="subtext">לבשל ביחד, או להזמין ולהתפנק?</p>
-          <div class="choices" data-group="sub3">
-            <button class="choice-card" data-value="cook" type="button"><span class="emoji">👩‍🍳</span> מכינים אוכל ביחד</button>
-            <button class="choice-card" data-value="delivery" type="button"><span class="emoji">🛵</span> מזמינים משלוח מפנק</button>
-          </div>
-        </section>
-
-        <!-- Step: vibe (out branch) -->
+        <!-- Step: vibe (main choice) -->
         <section class="step" data-step="vibe">
-          <span class="eyebrow-icon">🌙</span>
-          <h2>מה האווירה?</h2>
-          <p class="subtext">ארוחה רגועה, או דרינקים ובר?</p>
-          <div class="choices" data-group="sub3">
-            <button class="choice-card" data-value="restaurant" type="button"><span class="emoji">🍽️</span> ארוחה במסעדה</button>
-            <button class="choice-card" data-value="bar" type="button"><span class="emoji">🍸</span> דרינק ואלכוהול בבר</button>
+          <span class="eyebrow-icon">💫</span>
+          <h2>איפה בא לך לבלות?</h2>
+          <p class="subtext">ערב ביתי ונעים, או לצאת ולבלות?</p>
+          <div class="choices" data-group="vibe">
+            <button class="choice-card has-photo" data-value="home" type="button">
+              <img class="card-photo" src="images/home-vibe.jpg" alt="">
+              <span class="card-text"><span class="emoji">🏠</span> ערב ביתי אינטימי</span>
+            </button>
+            <button class="choice-card has-photo" data-value="out" type="button">
+              <img class="card-photo" src="images/out-vibe.jpg" alt="">
+              <span class="card-text"><span class="emoji">🍾</span> יוצאים לבלות בחוץ</span>
+            </button>
           </div>
         </section>
 
-        <!-- Step: cuisine (food/restaurant branch) -->
-        <section class="step" data-step="cuisine">
-          <span class="eyebrow-icon">🍜</span>
-          <h2>איזה מטבח מפתה?</h2>
+        <!-- Step: subopt-home -->
+        <section class="step" data-step="subopt-home">
+          <span class="eyebrow-icon">🏡</span>
+          <h2>מה בא לנו הערב?</h2>
+          <p class="subtext">לבחור איך נבלה את הערב הביתי שלנו</p>
+          <div class="choices" data-group="subopt">
+            <button class="choice-card has-photo" data-value="cook" type="button">
+              <img class="card-photo" src="images/cook-together.jpg" alt="">
+              <span class="card-text"><span class="emoji">👩‍🍳</span> מכינים ארוחה מושקעת ביחד</span>
+            </button>
+            <button class="choice-card" data-value="delivery" type="button">
+              <span class="emoji">🛵</span> מזמינים משלוח מפנק
+            </button>
+            <button class="choice-card has-photo" data-value="movie" type="button">
+              <img class="card-photo" src="images/movie-night.jpg" alt="">
+              <span class="card-text"><span class="emoji">🎬</span> ערב סרט וכרבול 🍿</span>
+            </button>
+            <button class="choice-card has-photo" data-value="winemusic" type="button">
+              <img class="card-photo" src="images/wine-night.jpg" alt="">
+              <span class="card-text"><span class="emoji">🍷</span> בקבוק יין ומוזיקה טובה 🎶</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Step: subopt-out -->
+        <section class="step" data-step="subopt-out">
+          <span class="eyebrow-icon">🌃</span>
+          <h2>מה בא לנו הערב?</h2>
+          <p class="subtext">לבחור איך נבלה את הערב בחוץ</p>
+          <div class="choices" data-group="subopt">
+            <button class="choice-card has-photo" data-value="restaurant" type="button">
+              <img class="card-photo" src="images/restaurant.jpg" alt="">
+              <span class="card-text"><span class="emoji">🍽️</span> ארוחה במסעדה מפנקת</span>
+            </button>
+            <button class="choice-card has-photo" data-value="bar" type="button">
+              <img class="card-photo" src="images/bar.jpg" alt="">
+              <span class="card-text"><span class="emoji">🍸</span> דרינק ואלכוהול בבר</span>
+            </button>
+            <button class="choice-card" data-value="active" type="button">
+              <span class="emoji">🎳</span> דייט אקטיבי / חווייתי
+            </button>
+          </div>
+        </section>
+
+        <!-- Leaf: cook -->
+        <section class="step" data-step="leaf-cook">
+          <span class="eyebrow-icon">🍳</span>
+          <h2>איזה מטבח מכינים?</h2>
           <p class="subtext">תבחרי את הטעם שהכי מתחשק לך</p>
-          <div class="choices grid-2" data-group="style">
-            <button class="choice-card" data-value="asian" type="button"><span class="emoji">🥢</span>אסייתי</button>
+          <div class="choices grid-2" data-group="leaf">
             <button class="choice-card" data-value="italian" type="button"><span class="emoji">🍝</span>איטלקי</button>
+            <button class="choice-card" data-value="fish" type="button"><span class="emoji">🐟</span>דגים טריים</button>
+            <button class="choice-card" data-value="saladomelette" type="button"><span class="emoji">🥗🍳</span>סלט וחביתה מפנק</button>
+            <button class="choice-card" data-value="sushi" type="button"><span class="emoji">🍣</span>סושי ביתי</button>
+            <button class="choice-card" data-value="meat" type="button"><span class="emoji">🥩</span>בשרים וגריל</button>
+          </div>
+        </section>
+
+        <!-- Leaf: delivery -->
+        <section class="step" data-step="leaf-delivery">
+          <span class="eyebrow-icon">🛵</span>
+          <h2>מה מזמינים?</h2>
+          <p class="subtext">תבחרי את המנה שהכי מתחשק לך הערב</p>
+          <div class="choices grid-2" data-group="leaf">
+            <button class="choice-card" data-value="asian" type="button"><span class="emoji">🥢</span>אסייתי / סושי</button>
+            <button class="choice-card" data-value="italian" type="button"><span class="emoji">🍕</span>איטלקי / פיצה</button>
+            <button class="choice-card" data-value="burger" type="button"><span class="emoji">🍔</span>המבורגר</button>
             <button class="choice-card" data-value="thai" type="button"><span class="emoji">🇹🇭</span>תאילנדי</button>
-            <button class="choice-card" data-value="burger" type="button"><span class="emoji">🍔</span>המבורגר / בשרים</button>
-            <button class="choice-card" data-value="sushi" type="button"><span class="emoji">🍣</span>סושי</button>
             <button class="choice-card" data-value="mexican" type="button"><span class="emoji">🌮</span>מקסיקני</button>
           </div>
         </section>
 
-        <!-- Step: bar style (bar branch) -->
-        <section class="step" data-step="barstyle">
-          <span class="eyebrow-icon">🍷</span>
+        <!-- Leaf: movie -->
+        <section class="step" data-step="leaf-movie">
+          <span class="eyebrow-icon">🍿</span>
+          <h2>מה אוכלים מול הסרט?</h2>
+          <p class="subtext">נשנושים לערב קולנוע ביתי</p>
+          <div class="choices grid-2" data-group="leaf">
+            <button class="choice-card" data-value="popcorn" type="button"><span class="emoji">🍫</span>פופקורן ומתוקים</button>
+            <button class="choice-card" data-value="pizzabeer" type="button"><span class="emoji">🍺</span>פיצה ובירות</button>
+            <button class="choice-card" data-value="cheesewine" type="button"><span class="emoji">🍷</span>גבינות ויין</button>
+          </div>
+        </section>
+
+        <!-- Leaf: winemusic -->
+        <section class="step" data-step="leaf-winemusic">
+          <span class="eyebrow-icon">🎶</span>
+          <h2>מה מתאים ליד היין?</h2>
+          <p class="subtext">ללוות את הכוסית בטעם המושלם</p>
+          <div class="choices grid-2" data-group="leaf">
+            <button class="choice-card" data-value="cheeseplate" type="button"><span class="emoji">🧀🍇</span>פלטת גבינות ופירות</button>
+            <button class="choice-card" data-value="snacks" type="button"><span class="emoji">🥨</span>נשנושים קלים</button>
+            <button class="choice-card" data-value="chocolate" type="button"><span class="emoji">🍓</span>שוקולד וקינוחים</button>
+          </div>
+        </section>
+
+        <!-- Leaf: restaurant -->
+        <section class="step" data-step="leaf-restaurant">
+          <span class="eyebrow-icon">🍜</span>
+          <h2>איזה מטבח מפתה?</h2>
+          <p class="subtext">תבחרי את הסגנון שהכי בא לך</p>
+          <div class="choices grid-2" data-group="leaf">
+            <button class="choice-card" data-value="italian" type="button"><span class="emoji">🍝</span>איטלקי</button>
+            <button class="choice-card" data-value="asian" type="button"><span class="emoji">🍣</span>אסייתי / סושי</button>
+            <button class="choice-card" data-value="thai" type="button"><span class="emoji">🇹🇭</span>תאילנדי</button>
+            <button class="choice-card" data-value="meat" type="button"><span class="emoji">🥩</span>מסעדת בשרים</button>
+            <button class="choice-card" data-value="seafood" type="button"><span class="emoji">🐟</span>דגים ופירות ים</button>
+          </div>
+        </section>
+
+        <!-- Leaf: bar -->
+        <section class="step" data-step="leaf-bar">
+          <span class="eyebrow-icon">🍸</span>
           <h2>מה הסגנון?</h2>
           <p class="subtext">לאיזו אווירה מתחשק לך הערב?</p>
-          <div class="choices" data-group="style">
-            <button class="choice-card" data-value="cocktail" type="button"><span class="emoji">🍸</span> בר קוקטיילים מושקע</button>
-            <button class="choice-card" data-value="pub" type="button"><span class="emoji">🍺</span> פאב שקט ואינטימי</button>
-            <button class="choice-card" data-value="wine" type="button"><span class="emoji">🍷</span> בר יין רומנטי</button>
+          <div class="choices grid-2" data-group="leaf">
+            <button class="choice-card" data-value="cocktail" type="button"><span class="emoji">🍸</span>בר קוקטיילים מושקע</button>
+            <button class="choice-card" data-value="pub" type="button"><span class="emoji">🍺</span>פאב שקט ואינטימי</button>
+            <button class="choice-card" data-value="wine" type="button"><span class="emoji">🍷</span>בר יין רומנטי</button>
+            <button class="choice-card" data-value="rooftop" type="button"><span class="emoji">🌆</span>רופטופ מול הנוף</button>
+          </div>
+        </section>
+
+        <!-- Leaf: active -->
+        <section class="step" data-step="leaf-active">
+          <span class="eyebrow-icon">🎉</span>
+          <h2>מה עושים?</h2>
+          <p class="subtext">תבחרי את החוויה למסע שלנו</p>
+          <div class="choices grid-2" data-group="leaf">
+            <button class="choice-card" data-value="cinema" type="button"><span class="emoji">🍿</span>סרט בקולנוע</button>
+            <button class="choice-card" data-value="beachwalk" type="button"><span class="emoji">🌊</span>הליכה רומנטית מול הים</button>
+            <button class="choice-card" data-value="show" type="button"><span class="emoji">🎭</span>הופעה / סטנדאפ</button>
+            <button class="choice-card" data-value="bowling" type="button"><span class="emoji">🎳</span>באולינג / משחקים</button>
           </div>
         </section>
 
         <!-- Step: summary -->
         <section class="step" data-step="summary">
-          <div class="summary-heart">❤️</div>
+          <div class="summary-photo-frame">
+            <img src="images/summary-dinner.jpg" alt="" loading="lazy">
+            <span class="badge">❤️</span>
+          </div>
           <h2>יש לנו דייט מושלם!</h2>
           <div class="summary-list" id="summaryList"></div>
           <p class="closing-line">מחכה כבר לראות אותך! 😘</p>
@@ -583,52 +757,66 @@
   var state = {
     date: "",
     time: "",
-    where: "",   // home | out
-    sub3: "",    // cook | delivery | restaurant | bar
-    style: ""    // cuisine or bar style value
+    vibe: "",     // home | out
+    subopt: "",   // cook | delivery | movie | winemusic | restaurant | bar | active
+    leaf: ""      // value inside the chosen subopt's leaf map
   };
 
-  var labels = {
-    where: { home: "נשארים בבית 🏠", out: "יוצאים לבלות 🍾" },
-    sub3: {
-      cook: "מכינים אוכל ביחד 👩‍🍳",
-      delivery: "מזמינים משלוח מפנק 🛵",
-      restaurant: "ארוחה במסעדה 🍽️",
-      bar: "דרינק ואלכוהול בבר 🍸"
+  var vibeLabels = {
+    home: "ערב ביתי אינטימי 🏠",
+    out: "יוצאים לבלות בחוץ 🍾"
+  };
+
+  var suboptLabels = {
+    cook: "מכינים ארוחה מושקעת ביחד 👩‍🍳",
+    delivery: "מזמינים משלוח מפנק 🛵",
+    movie: "ערב סרט וכרבול 🎬🍿",
+    winemusic: "בקבוק יין ומוזיקה טובה 🍷🎶",
+    restaurant: "ארוחה במסעדה מפנקת 🍽️",
+    bar: "דרינק ואלכוהול בבר 🍸",
+    active: "דייט אקטיבי / חווייתי 🎳"
+  };
+
+  var leafLabels = {
+    cook: {
+      italian: "איטלקי 🍝", fish: "דגים טריים 🐟", saladomelette: "ערב סלט וחביתה מפנק 🥗🍳",
+      sushi: "סושי ביתי 🍣", meat: "בשרים וגריל 🥩"
     },
-    style: {
-      asian: "אסייתי 🥢",
-      italian: "איטלקי 🍝",
-      thai: "תאילנדי 🇹🇭",
-      burger: "המבורגר / בשרים 🍔",
-      sushi: "סושי 🍣",
-      mexican: "מקסיקני 🌮",
-      cocktail: "בר קוקטיילים מושקע 🍸",
-      pub: "פאב שקט ואינטימי 🍺",
-      wine: "בר יין רומנטי 🍷"
+    delivery: {
+      asian: "אסייתי / סושי 🥢", italian: "איטלקי / פיצה 🍕", burger: "המבורגר 🍔",
+      thai: "תאילנדי 🇹🇭", mexican: "מקסיקני 🌮"
+    },
+    movie: {
+      popcorn: "פופקורן ומתוקים 🍫", pizzabeer: "פיצה ובירות 🍺", cheesewine: "גבינות ויין 🍷"
+    },
+    winemusic: {
+      cheeseplate: "פלטת גבינות ופירות 🧀🍇", snacks: "נשנושים קלים 🥨", chocolate: "שוקולד וקינוחים 🍓"
+    },
+    restaurant: {
+      italian: "איטלקי 🍝", asian: "אסייתי / סושי 🍣", thai: "תאילנדי 🇹🇭",
+      meat: "מסעדת בשרים 🥩", seafood: "דגים ופירות ים 🐟"
+    },
+    bar: {
+      cocktail: "בר קוקטיילים מושקע 🍸", pub: "פאב שקט ואינטימי 🍺",
+      wine: "בר יין רומנטי 🍷", rooftop: "רופטופ מול הנוף 🌆"
+    },
+    active: {
+      cinema: "סרט בקולנוע 🍿", beachwalk: "הליכה רומנטית מול הים 🌊",
+      show: "הופעה / סטנדאפ 🎭", bowling: "באולינג / משחקים 🎳"
     }
   };
-
-  var QUESTION_STEPS = ["when","where","sub3-slot","style-slot"]; // logical slots for progress (4 hearts)
 
   function currentPath(){
-    var path = ["when","where"];
-    if(state.where === "home"){ path.push("food"); }
-    else if(state.where === "out"){ path.push("vibe"); }
-    // else: no third step chosen yet, stop here until "where" answered
+    var path = ["when", "vibe"];
+    if(state.vibe === "home"){ path.push("subopt-home"); }
+    else if(state.vibe === "out"){ path.push("subopt-out"); }
 
-    if(state.sub3 === "cook" || state.sub3 === "delivery" || state.sub3 === "restaurant"){
-      path.push("cuisine");
-    } else if(state.sub3 === "bar"){
-      path.push("barstyle");
-    }
-
-    if(state.style){ path.push("summary"); }
+    if(state.subopt){ path.push("leaf-" + state.subopt); }
+    if(state.leaf){ path.push("summary"); }
     return path;
   }
 
   var currentIndex = -1; // -1 = welcome
-  var cardEl = document.getElementById("card");
   var navButtons = document.getElementById("navButtons");
   var backBtn = document.getElementById("backBtn");
   var nextBtn = document.getElementById("nextBtn");
@@ -649,27 +837,23 @@
   }
 
   function groupNameForStep(stepName){
-    if(stepName === "where") return "where";
-    if(stepName === "food" || stepName === "vibe") return "sub3";
-    if(stepName === "cuisine" || stepName === "barstyle") return "style";
+    if(stepName === "vibe") return "vibe";
+    if(stepName === "subopt-home" || stepName === "subopt-out") return "subopt";
+    if(stepName.indexOf("leaf-") === 0) return "leaf";
     return null;
   }
 
   function slotIndexForStep(stepName){
-    // maps a real step name to a progress-slot index (0..3)
     if(stepName === "when") return 0;
-    if(stepName === "where") return 1;
-    if(stepName === "food" || stepName === "vibe") return 2;
-    if(stepName === "cuisine" || stepName === "barstyle") return 3;
+    if(stepName === "vibe") return 1;
+    if(stepName === "subopt-home" || stepName === "subopt-out") return 2;
+    if(stepName.indexOf("leaf-") === 0) return 3;
     return -1;
   }
 
   function renderProgress(stepName){
     progressTrail.innerHTML = "";
-    if(stepName === "welcome" || stepName === "summary"){
-      navButtons.style.display = stepName === "summary" ? "none" : "none";
-      return;
-    }
+    if(stepName === "welcome" || stepName === "summary"){ return; }
     var activeSlot = slotIndexForStep(stepName);
     for(var i = 0; i < 4; i++){
       var h = document.createElement("span");
@@ -693,9 +877,9 @@
 
   function isStepValid(stepName){
     if(stepName === "when") return !!(state.date && state.time);
-    if(stepName === "where") return !!state.where;
-    if(stepName === "food" || stepName === "vibe") return !!state.sub3;
-    if(stepName === "cuisine" || stepName === "barstyle") return !!state.style;
+    if(stepName === "vibe") return !!state.vibe;
+    if(stepName === "subopt-home" || stepName === "subopt-out") return !!state.subopt;
+    if(stepName.indexOf("leaf-") === 0) return !!state.leaf;
     return true;
   }
 
@@ -714,7 +898,7 @@
       navButtons.style.display = "flex";
       backBtn.disabled = (currentIndex === 0);
       nextBtn.disabled = !isStepValid(stepName);
-      var isFinalQuestion = (stepName === "cuisine" || stepName === "barstyle");
+      var isFinalQuestion = (stepName.indexOf("leaf-") === 0);
       nextBtn.textContent = isFinalQuestion ? "סיימנו 🎉" : "הבא";
     }
   }
@@ -725,7 +909,6 @@
     if(!isStepValid(stepName)) return;
     var nextName = path[currentIndex + 1];
     if(!nextName){
-      // recompute path now that an answer may unlock a new next step
       path = currentPath();
       nextName = path[currentIndex + 1];
     }
@@ -737,7 +920,6 @@
   function goBack(){
     var path = currentPath();
     if(currentIndex <= 0){
-      // back to welcome
       currentIndex = -1;
       showStep("welcome");
       navButtons.style.display = "none";
@@ -769,16 +951,15 @@
       var groupName = group.dataset.group;
       var value = btn.dataset.value;
 
-      if(groupName === "where"){
-        state.where = value;
-        // changing location invalidates downstream answers
-        state.sub3 = "";
-        state.style = "";
-      } else if(groupName === "sub3"){
-        state.sub3 = value;
-        state.style = "";
-      } else if(groupName === "style"){
-        state.style = value;
+      if(groupName === "vibe"){
+        state.vibe = value;
+        state.subopt = "";
+        state.leaf = "";
+      } else if(groupName === "subopt"){
+        state.subopt = value;
+        state.leaf = "";
+      } else if(groupName === "leaf"){
+        state.leaf = value;
       }
 
       group.querySelectorAll(".choice-card").forEach(function(b){
@@ -794,7 +975,8 @@
   backBtn.addEventListener("click", goBack);
 
   document.getElementById("restartBtn").addEventListener("click", function(){
-    state = { date:"", time:"", where:"", sub3:"", style:"" };
+    stopConfetti();
+    state = { date:"", time:"", vibe:"", subopt:"", leaf:"" };
     document.getElementById("dateInput").value = "";
     document.getElementById("timeInput").value = "";
     document.querySelectorAll(".choice-card.selected").forEach(function(b){ b.classList.remove("selected"); });
@@ -820,12 +1002,15 @@
     var list = document.getElementById("summaryList");
     list.innerHTML = "";
 
+    var vibeIcon = state.vibe === "home" ? "🏠" : "🍾";
+    var leafText = (leafLabels[state.subopt] && leafLabels[state.subopt][state.leaf]) || "";
+
     var rows = [
       { icon:"📅", sub:"תאריך", text: formatDateHe(state.date) },
       { icon:"🕐", sub:"שעה", text: state.time },
-      { icon: state.where === "home" ? "🏠" : "🍾", sub:"מיקום", text: labels.where[state.where] || "" },
-      { icon:"✨", sub:"תוכנית", text: labels.sub3[state.sub3] || "" },
-      { icon:"💫", sub:"סגנון", text: labels.style[state.style] || "" }
+      { icon: vibeIcon, sub:"איפה", text: vibeLabels[state.vibe] || "" },
+      { icon:"✨", sub:"תוכנית", text: suboptLabels[state.subopt] || "" },
+      { icon:"💫", sub:"בחירה", text: leafText }
     ];
 
     rows.forEach(function(r){
@@ -839,8 +1024,20 @@
 
   // ---------- confetti ----------
   var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var confettiToken = 0;
+
+  function stopConfetti(){
+    confettiToken++; // invalidates any in-flight animation loop
+    var canvas = document.getElementById("confetti-canvas");
+    if(canvas){
+      var ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
 
   function launchConfetti(){
+    confettiToken++;
+    var myToken = confettiToken;
     var canvas = document.getElementById("confetti-canvas");
     if(!canvas){
       canvas = document.createElement("canvas");
@@ -859,7 +1056,7 @@
     }
     resize();
 
-    var colors = ["#A23B5C", "#D8637E", "#F3B998", "#E3A857", "#F6D9DF"];
+    var colors = ["#A23B5C", "#BE4F74", "#F3B998", "#E3A857", "#F6D9DF"];
     var count = reduceMotion ? 18 : 90;
     var duration = reduceMotion ? 1200 : 3600;
     var particles = [];
@@ -904,6 +1101,8 @@
 
     var start = null;
     function frame(ts){
+      if(myToken !== confettiToken){ return; } // superseded by a restart/new launch
+
       if(!start) start = ts;
       var elapsed = ts - start;
       ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
