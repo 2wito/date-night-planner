@@ -217,7 +217,7 @@
     margin-bottom:6px;
   }
 
-  /* ---------- welcome step + cover photo ---------- */
+  /* ---------- cover photo frame (reused by the welcome modal) ---------- */
   .cover-photo-frame{
     width:168px;
     height:168px;
@@ -243,13 +243,50 @@
     transform:rotate(12deg);
   }
 
-  .step[data-step="welcome"] h1{
-    font-size:clamp(1.42rem, 4.4vw + .5rem, 1.75rem);
-    line-height:1.35;
+  /* ---------- welcome modal ----------
+     Appears over everything the instant the page loads; the wizard behind
+     it is already prepared at step 1, so dismissing the modal reveals the
+     date/time step immediately with no extra tap. */
+  .modal-overlay{
+    position:fixed;
+    inset:0;
+    z-index:200;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    background:rgba(74,36,54,0.55);
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+    transition:opacity .35s var(--ease);
   }
-  .step[data-step="welcome"] .subtext{
-    margin-top:10px;
-    font-size:clamp(.92rem, 1.6vw + .6rem, 1rem);
+  .modal-overlay.closing{
+    opacity:0;
+    pointer-events:none;
+  }
+  body.modal-open{ overflow:hidden; }
+
+  .modal-card{
+    width:100%;
+    max-width:380px;
+    background:var(--card);
+    border-radius:var(--radius-card);
+    box-shadow:0 30px 60px -20px rgba(74,36,54,0.5);
+    padding:30px 24px 26px;
+    text-align:center;
+    animation: modal-in .45s var(--ease);
+  }
+  @keyframes modal-in{
+    from{ opacity:0; transform:translateY(14px) scale(.96); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+
+  .modal-text{
+    font-family:'Frank Ruhl Libre', serif;
+    color:var(--rose-deep);
+    font-size:clamp(1.08rem, 3.4vw + .4rem, 1.25rem);
+    line-height:1.55;
+    margin:4px 0 22px;
   }
 
   /* ---------- date/time inputs ---------- */
@@ -420,6 +457,52 @@
     animation: pop-select .32s var(--ease);
   }
 
+  /* ---------- surprise me ---------- */
+  .surprise-btn{
+    appearance:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    margin:0 auto 16px;
+    background:transparent;
+    border:2px dashed var(--rose-mid);
+    color:var(--rose-deep);
+    font-family:'Assistant', sans-serif;
+    font-weight:700;
+    font-size:.92rem;
+    border-radius:var(--radius-pill);
+    padding:10px 18px;
+    cursor:pointer;
+    transition: background .2s var(--ease), transform .2s var(--ease), border-color .2s var(--ease);
+  }
+  .surprise-btn:hover{ background:var(--pink-soft-2); border-color:var(--rose-deep); }
+  .surprise-btn:active{ transform:scale(.96); }
+  .surprise-btn:focus-visible{ outline:3px solid var(--gold); outline-offset:2px; }
+  .surprise-btn .dice{ display:inline-block; font-size:1.05rem; }
+  .surprise-btn.rolling .dice{
+    animation: dice-roll .5s var(--ease);
+  }
+  @keyframes dice-roll{
+    0%{ transform:rotate(0) scale(1); }
+    35%{ transform:rotate(-18deg) scale(1.15); }
+    70%{ transform:rotate(14deg) scale(1.1); }
+    100%{ transform:rotate(0) scale(1); }
+  }
+
+  /* a slightly bigger, more playful pop than the regular tap feedback,
+     reserved for the card the "surprise me" button picks — it should read
+     as a little more eventful than a manual tap. */
+  @keyframes pop-surprise{
+    0%{ transform:translateY(-2px) scale(1); }
+    40%{ transform:translateY(-4px) scale(1.07) rotate(-1.5deg); }
+    70%{ transform:translateY(-2px) scale(1.02) rotate(1deg); }
+    100%{ transform:translateY(-2px) scale(1) rotate(0); }
+  }
+  .choice-card.just-surprised{
+    animation: pop-surprise .5s var(--ease);
+  }
+
   /* ---------- nav buttons ----------
      Sticky bottom action bar: on a short step it simply sits at the foot
      of the flex column; on a step tall enough to need scrolling, it stays
@@ -570,6 +653,67 @@
     margin-bottom:1px;
   }
 
+  /* ---------- live countdown ---------- */
+  .countdown-card{
+    background:linear-gradient(135deg, var(--pink-soft-2), var(--pink-soft));
+    border-radius:18px;
+    padding:16px 14px;
+    text-align:center;
+    margin-bottom:12px;
+  }
+  .countdown-sentence{
+    font-weight:700;
+    font-size:.95rem;
+    color:var(--rose-deep);
+    margin:0 0 6px;
+    line-height:1.45;
+  }
+  .countdown-clock{
+    font-variant-numeric: tabular-nums;
+    font-weight:700;
+    font-size:1.35rem;
+    letter-spacing:1px;
+    color:var(--gold);
+    margin:0;
+    direction:ltr;
+    unicode-bidi:isolate;
+  }
+
+  /* ---------- tap-to-reveal coupon ---------- */
+  .coupon-card{
+    appearance:none;
+    width:100%;
+    border:2px dashed var(--gold);
+    background:var(--pink-soft-2);
+    border-radius:18px;
+    padding:16px 14px;
+    margin-bottom:12px;
+    cursor:pointer;
+    font-family:'Assistant', sans-serif;
+    font-weight:700;
+    font-size:.95rem;
+    color:var(--rose-deep);
+    line-height:1.5;
+    transition: background .25s var(--ease), border-color .25s var(--ease), transform .2s var(--ease);
+  }
+  .coupon-card:hover{ background:var(--card); }
+  .coupon-card:active{ transform:scale(.98); }
+  .coupon-card:focus-visible{ outline:3px solid var(--gold); outline-offset:2px; }
+  .coupon-card .coupon-back{ display:none; }
+  .coupon-card.revealed{
+    background:linear-gradient(135deg, var(--gold), var(--peach));
+    border-style:solid;
+    color:var(--ink);
+    animation: coupon-reveal .4s var(--ease);
+  }
+  .coupon-card.revealed .coupon-front{ display:none; }
+  .coupon-card.revealed .coupon-back{ display:block; }
+  @keyframes coupon-reveal{
+    0%{ transform:scale(.95); }
+    55%{ transform:scale(1.03); }
+    100%{ transform:scale(1); }
+  }
+
   .closing-line{
     font-family:'Frank Ruhl Libre', serif;
     color:var(--rose-deep);
@@ -633,23 +777,23 @@
     <span>❤</span><span>✦</span><span>❀</span><span>❤</span><span>✦</span><span>❀</span>
   </div>
 
+  <div class="modal-overlay" id="welcomeModal" role="dialog" aria-modal="true" aria-labelledby="welcomeModalText">
+    <div class="modal-card">
+      <div class="cover-photo-frame">
+        <img src="images/cover-beach.jpg" alt="" loading="eager">
+        <span class="badge">💌</span>
+      </div>
+      <p class="modal-text" id="welcomeModalText">היי אהובה שלי ❤️<br>הכנתי לך משהו מיוחד כדי שנארגן את הדייט הכי מדויק בשבילך... מוכנה?</p>
+      <button class="btn btn-primary-wide" id="welcomeModalBtn" type="button">בואי נתחיל! ✨</button>
+    </div>
+  </div>
+
   <main class="app">
     <div class="wizard-card" id="card">
 
       <div class="progress-trail" id="progressTrail" aria-hidden="true"></div>
 
       <div class="step-viewport">
-
-        <!-- Welcome -->
-        <section class="step" data-step="welcome">
-          <div class="cover-photo-frame">
-            <img src="images/cover-beach.jpg" alt="" loading="eager">
-            <span class="badge">💕</span>
-          </div>
-          <h1>מתכננים ערב רומנטי?</h1>
-          <p class="subtext">כמה שאלות קטנות, ובסוף תצא לנו תוכנית מושלמת לדייט שלנו</p>
-          <button class="btn btn-primary-wide" id="startBtn" type="button">בואי נתחיל 💕</button>
-        </section>
 
         <!-- Step: when -->
         <section class="step" data-step="when">
@@ -679,6 +823,7 @@
           <span class="eyebrow-icon">💫</span>
           <h2>איפה בא לך לבלות?</h2>
           <p class="subtext">ערב ביתי, יציאה, משהו אקטיבי, או טיול?</p>
+          <button class="surprise-btn" data-surprise type="button"><span class="dice">🎲</span> תפתיע אותי!</button>
           <div class="choices" data-group="vibe">
             <button class="choice-card has-photo" data-value="home" type="button">
               <img class="card-photo" src="images/home-vibe.jpg" alt="">
@@ -703,6 +848,7 @@
           <span class="eyebrow-icon">🏡</span>
           <h2>מה בא לנו הערב?</h2>
           <p class="subtext">לבחור איך נבלה את הערב הביתי שלנו</p>
+          <button class="surprise-btn" data-surprise type="button"><span class="dice">🎲</span> תפתיע אותי!</button>
           <div class="choices" data-group="subopt">
             <button class="choice-card has-photo" data-value="parrot" type="button">
               <img class="card-photo" src="images/parrot-play.jpg" alt="">
@@ -729,6 +875,7 @@
           <span class="eyebrow-icon">🌃</span>
           <h2>מה בא לנו הערב?</h2>
           <p class="subtext">לבחור איך נבלה את הערב בחוץ</p>
+          <button class="surprise-btn" data-surprise type="button"><span class="dice">🎲</span> תפתיע אותי!</button>
           <div class="choices" data-group="subopt">
             <button class="choice-card has-photo" data-value="restaurant" type="button">
               <img class="card-photo" src="images/restaurant.jpg" alt="">
@@ -753,6 +900,7 @@
           <span class="eyebrow-icon">🏄‍♂️</span>
           <h2>מה עושים?</h2>
           <p class="subtext">תבחרי את החוויה האקטיבית שלנו</p>
+          <button class="surprise-btn" data-surprise type="button"><span class="dice">🎲</span> תפתיע אותי!</button>
           <div class="choices" data-group="subopt">
             <button class="choice-card" data-value="seawalk" type="button"><span class="emoji">🌊</span> הליכה בים</button>
             <button class="choice-card" data-value="neighborhoodwalk" type="button"><span class="emoji">🚶‍♂️</span> הליכה כיפית בשכונה</button>
@@ -766,6 +914,7 @@
           <span class="eyebrow-icon">🛍️</span>
           <h2>לאן יוצאים?</h2>
           <p class="subtext">טיול רגוע או סיבוב שופינג?</p>
+          <button class="surprise-btn" data-surprise type="button"><span class="dice">🎲</span> תפתיע אותי!</button>
           <div class="choices" data-group="subopt">
             <button class="choice-card" data-value="forest" type="button"><span class="emoji">🌲</span> טיול רומנטי ביער</button>
             <button class="choice-card" data-value="telaviv" type="button"><span class="emoji">🏙️</span> לסיבוב וטיול בתל אביב</button>
@@ -781,6 +930,7 @@
           <span class="eyebrow-icon">🍽️</span>
           <h2>על מה מתחשק לנו?</h2>
           <p class="subtext">ארוחה של ממש, או נשנושים מתוקים — גם וגם זה בסדר 😉</p>
+          <button class="surprise-btn" data-surprise type="button"><span class="dice">🎲</span> תפתיע אותי!</button>
           <div class="choices-group">
             <p class="group-label">🍽️ ארוחה</p>
             <div class="choices grid-2" data-group="leaf">
@@ -808,6 +958,7 @@
           <span class="eyebrow-icon">🍜</span>
           <h2>איזה מטבח מפתה?</h2>
           <p class="subtext">תבחרי את הסגנון שהכי בא לך</p>
+          <button class="surprise-btn" data-surprise type="button"><span class="dice">🎲</span> תפתיע אותי!</button>
           <div class="choices grid-2" data-group="leaf">
             <button class="choice-card" data-value="asian" type="button"><span class="emoji">🥢</span>אסייתי</button>
             <button class="choice-card" data-value="thai" type="button"><span class="emoji">🇹🇭</span>תאילנדי</button>
@@ -828,6 +979,7 @@
           <span class="eyebrow-icon">🍸</span>
           <h2>איזה בר בא לנו?</h2>
           <p class="subtext">לאיזו אווירה מתחשק לך הערב?</p>
+          <button class="surprise-btn" data-surprise type="button"><span class="dice">🎲</span> תפתיע אותי!</button>
           <div class="choices grid-2" data-group="leaf">
             <button class="choice-card" data-value="cocktail" type="button"><span class="emoji">🍸</span>בר קוקטיילים מושקע</button>
             <button class="choice-card" data-value="neighborhood" type="button"><span class="emoji">🍺</span>בר שכונתי מגניב</button>
@@ -846,6 +998,17 @@
           </div>
           <h2>יש לנו דייט מושלם!</h2>
           <div class="summary-list" id="summaryList"></div>
+
+          <div class="countdown-card">
+            <p class="countdown-sentence" id="countdownSentence">⏳ סופרים את הדקות...</p>
+            <p class="countdown-clock" id="countdownClock" aria-hidden="true"></p>
+          </div>
+
+          <button class="coupon-card" id="couponCard" type="button">
+            <span class="coupon-front">לחצי לחשיפת השובר הסודי 🎁</span>
+            <span class="coupon-back">קיבלת קופון למסאז' מפנק של 20 דקות בסוף הדייט 💆‍♀️✨</span>
+          </button>
+
           <p class="closing-line">מחכה כבר לראות אותך! 😘</p>
           <a class="btn btn-whatsapp" id="whatsappBtn" href="#" target="_blank" rel="noopener">
             <svg class="wa-icon" viewBox="0 0 448 512" aria-hidden="true"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-221.9 99.5-221.9 221.9 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.5 224.1-221.9 0-59.3-23.1-115-64.1-157.1zM223.9 438.7h-.1c-33.2 0-65.7-8.9-94-25.8l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.6-29.6-28.4-63.7-28.4-98.7 0-102.2 83.2-185.4 185.5-185.4 49.6 0 96.2 19.3 131.3 54.5 35.1 35.1 54.4 81.8 54.4 131.4 0 102.3-83.3 185.7-185.5 185.7zm101.5-138.9c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.5 21.7-3.2 3.7-6.5 4.1-12 1.4-5.5-2.8-23.2-8.6-44.2-27.3-16.3-14.6-27.3-32.6-30.5-38.1-3.2-5.6-.3-8.6 2.4-11.4 2.5-2.5 5.6-6.5 8.4-9.7 2.8-3.2 3.7-5.6 5.6-9.3 1.9-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2s-9.7 1.4-14.8 6.9c-5.1 5.6-19.4 19-19.4 46.3s19.9 53.7 22.7 57.4c2.8 3.7 39.1 59.7 94.8 83.7 13.2 5.7 23.5 9.1 31.6 11.7 13.3 4.2 25.4 3.6 35 2.2 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
@@ -1088,23 +1251,56 @@
   }
 
   function goBack(){
+    // "when" is step 0 and has no step before it (the welcome modal, not a
+    // wizard step, already came and went) — backBtn is disabled/hidden at
+    // currentIndex 0, so this guard is just a safety net.
+    if(currentIndex <= 0) return;
     var path = currentPath();
-    if(currentIndex <= 0){
-      currentIndex = -1;
-      showStep("welcome");
-      navButtons.style.display = "none";
-      progressTrail.innerHTML = "";
-      return;
-    }
     var prevName = path[currentIndex - 1];
     goToStep(prevName, "back");
   }
 
-  // ---------- wiring ----------
-  document.getElementById("startBtn").addEventListener("click", function(){
-    goToStep("when", "forward");
+  // ---------- welcome modal ----------
+  var welcomeModal = document.getElementById("welcomeModal");
+
+  function closeWelcomeModal(){
+    welcomeModal.classList.add("closing");
+    document.body.classList.remove("modal-open");
+    window.setTimeout(function(){ welcomeModal.style.display = "none"; }, 350);
+  }
+
+  document.getElementById("welcomeModalBtn").addEventListener("click", closeWelcomeModal);
+  welcomeModal.addEventListener("keydown", function(e){
+    if(e.key === "Escape") closeWelcomeModal();
   });
 
+  // ---------- surprise me ----------
+  document.querySelectorAll(".surprise-btn").forEach(function(surpriseBtn){
+    surpriseBtn.addEventListener("click", function(){
+      var stepSection = surpriseBtn.closest(".step");
+      if(!stepSection) return;
+      var cards = Array.prototype.slice.call(stepSection.querySelectorAll(".choice-card"));
+      if(!cards.length) return;
+
+      // prefer a card other than the one already selected, so re-rolling
+      // actually feels like something happened
+      var currentlySelected = stepSection.querySelector(".choice-card.selected");
+      var pool = cards.filter(function(c){ return c !== currentlySelected; });
+      if(!pool.length) pool = cards;
+      var pick = pool[Math.floor(Math.random() * pool.length)];
+
+      surpriseBtn.classList.remove("rolling");
+      void surpriseBtn.offsetWidth;
+      surpriseBtn.classList.add("rolling");
+
+      pick.scrollIntoView({ behavior: "smooth", block: "center" });
+      pick.classList.add("just-surprised");
+      window.setTimeout(function(){ pick.classList.remove("just-surprised"); }, 520);
+      pick.click(); // reuses the normal selection handler for state + nav updates
+    });
+  });
+
+  // ---------- wiring ----------
   document.getElementById("dateInput").addEventListener("input", function(e){
     state.date = e.target.value;
     nextBtn.disabled = !isStepValid("when");
@@ -1157,14 +1353,18 @@
 
   document.getElementById("restartBtn").addEventListener("click", function(){
     stopConfetti();
+    stopCountdown();
+    document.getElementById("couponCard").classList.remove("revealed");
     state = { date:"", time:"", vibe:"", subopt:"", leaf:"" };
     document.getElementById("dateInput").value = "";
     document.getElementById("timeInput").value = "";
     document.querySelectorAll(".choice-card.selected").forEach(function(b){ b.classList.remove("selected"); });
-    currentIndex = -1;
-    showStep("welcome");
-    navButtons.style.display = "none";
-    progressTrail.innerHTML = "";
+    goToStep("when", "forward");
+  });
+
+  // ---------- tap-to-reveal coupon ----------
+  document.getElementById("couponCard").addEventListener("click", function(){
+    this.classList.toggle("revealed");
   });
 
   // ---------- summary rendering ----------
@@ -1209,6 +1409,60 @@
     });
 
     updateWhatsAppLink();
+    startCountdown();
+  }
+
+  // ---------- live countdown ----------
+  var countdownIntervalId = null;
+
+  function getTargetDateTime(){
+    if(!state.date || !state.time) return null;
+    var d = state.date.split("-");
+    var t = state.time.split(":");
+    return new Date(Number(d[0]), Number(d[1]) - 1, Number(d[2]), Number(t[0]), Number(t[1]), 0);
+  }
+
+  function pad2(n){ return n < 10 ? "0" + n : String(n); }
+
+  function tickCountdown(){
+    var sentenceEl = document.getElementById("countdownSentence");
+    var clockEl = document.getElementById("countdownClock");
+    if(!sentenceEl || !clockEl) return;
+
+    var target = getTargetDateTime();
+    if(!target){ sentenceEl.textContent = ""; clockEl.textContent = ""; return; }
+
+    var diffMs = target.getTime() - Date.now();
+    if(diffMs <= 0){
+      sentenceEl.textContent = "הגיע הזמן שלנו! 🎉 מתרגשת כמוך!";
+      clockEl.textContent = "";
+      stopCountdown();
+      return;
+    }
+
+    var totalSeconds = Math.floor(diffMs / 1000);
+    var days = Math.floor(totalSeconds / 86400);
+    var hours = Math.floor((totalSeconds % 86400) / 3600);
+    var minutes = Math.floor((totalSeconds % 3600) / 60);
+    var seconds = totalSeconds % 60;
+
+    var dayWord = days === 1 ? "יום" : "ימים";
+    var hourWord = hours === 1 ? "שעה" : "שעות";
+    sentenceEl.textContent = "⏳ נשארו עוד " + days + " " + dayWord + ", " + hours + " " + hourWord + " לזמן שלנו! ❤️";
+    clockEl.textContent = pad2(days * 24 + hours) + ":" + pad2(minutes) + ":" + pad2(seconds);
+  }
+
+  function startCountdown(){
+    stopCountdown();
+    tickCountdown();
+    countdownIntervalId = window.setInterval(tickCountdown, 1000);
+  }
+
+  function stopCountdown(){
+    if(countdownIntervalId !== null){
+      window.clearInterval(countdownIntervalId);
+      countdownIntervalId = null;
+    }
   }
 
   // ---------- WhatsApp share ----------
@@ -1341,8 +1595,11 @@
     window.addEventListener("resize", resize);
   }
 
-  // init
-  showStep("welcome");
+  // init — the wizard is already ready at step 1 behind the welcome modal,
+  // so dismissing the modal reveals it instantly with no extra tap.
+  document.body.classList.add("modal-open");
+  goToStep("when", "forward");
+  document.getElementById("welcomeModalBtn").focus();
 })();
 </script>
 </body>
