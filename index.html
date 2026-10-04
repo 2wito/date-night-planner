@@ -628,6 +628,117 @@
     transform:rotate(-10deg);
   }
 
+  /* ---------- boarding-pass ticket ----------
+     Deliberately not clipped with overflow:hidden — see the note on
+     .wizard-card above for why that combo is unsafe here (it pairs
+     overflow:hidden with content positioned past the box edge, which
+     triggers a Chromium RTL layout bug). The perforation "notches" are
+     instead sized and placed fully within their own box and nudged purely
+     with a transform (paint-only, doesn't affect layout/scrollable
+     overflow), landing visually half-outside the card without needing any
+     clipping — their fill color matches the page behind them either way. */
+  .boarding-pass{
+    background:var(--pink-soft-2);
+    border-radius:18px;
+    border:1px solid rgba(162,59,92,0.15);
+    box-shadow:0 10px 24px -14px rgba(162,59,92,0.35);
+    margin:18px 0;
+    text-align:center;
+  }
+  .bp-top{ padding:16px 18px 10px; }
+  .bp-title{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    font-size:.8rem;
+    font-weight:700;
+    letter-spacing:.5px;
+    color:var(--rose-deep);
+  }
+  .bp-names{
+    font-family:'Frank Ruhl Libre', serif;
+    font-size:1.25rem;
+    font-weight:700;
+    color:var(--ink);
+    margin-top:6px;
+  }
+  .bp-names .bp-heart{ color:var(--rose-mid); margin:0 4px; }
+
+  .bp-perforation{
+    position:relative;
+    border-top:2px dashed rgba(162,59,92,.35);
+    margin:0 18px;
+  }
+  .bp-perforation::before,
+  .bp-perforation::after{
+    content:"";
+    position:absolute;
+    top:0;
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    background:var(--card);
+  }
+  .bp-perforation::before{ left:0; transform:translate(-50%,-50%); }
+  .bp-perforation::after{ right:0; transform:translate(50%,-50%); }
+
+  .bp-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px 10px;
+    padding:18px;
+    text-align:start;
+  }
+  .bp-field-label{
+    display:block;
+    font-size:.72rem;
+    font-weight:700;
+    color:var(--ink-muted);
+    letter-spacing:.3px;
+    margin-bottom:2px;
+  }
+  .bp-field-value{
+    display:block;
+    font-weight:700;
+    font-size:.95rem;
+    color:var(--ink);
+    line-height:1.35;
+  }
+
+  .bp-barcode{
+    height:26px;
+    margin:0 18px 16px;
+    border-radius:4px;
+    background-image: repeating-linear-gradient(90deg,
+      var(--ink) 0 2px, transparent 2px 5px,
+      var(--ink) 5px 6px, transparent 6px 9px,
+      var(--ink) 9px 12px, transparent 12px 16px);
+    opacity:.5;
+  }
+
+  /* ---------- special-request note ---------- */
+  .note-textarea{
+    width:100%;
+    min-height:112px;
+    resize:vertical;
+    background:var(--pink-soft-2);
+    border:2px solid transparent;
+    border-radius:18px;
+    padding:14px 16px;
+    font-family:'Assistant', sans-serif;
+    font-size:1rem;
+    color:var(--ink);
+    line-height:1.5;
+    transition: border-color .25s var(--ease), background .25s var(--ease);
+  }
+  .note-textarea::placeholder{ color:var(--ink-muted); opacity:.8; }
+  .note-textarea:focus{
+    outline:none;
+    border-color:var(--rose-mid);
+    background:var(--card);
+  }
+
   .summary-list{
     display:flex;
     flex-direction:column;
@@ -990,6 +1101,62 @@
           </div>
         </section>
 
+        <!-- Step: dessert — only for a home evening or an out>restaurant meal -->
+        <section class="step" data-step="dessert">
+          <span class="eyebrow-icon">🍦</span>
+          <h2>הרכיבי את הקינוח המושלם</h2>
+          <p class="subtext">בסיס, רוטב ותוספת — הקינוח שלנו הערב</p>
+          <button class="surprise-btn" data-surprise type="button"><span class="dice">🎲</span> תפתיע אותי!</button>
+          <div class="choices-group">
+            <p class="group-label">🍨 בסיס</p>
+            <div class="choices grid-2" data-group="dessert-base">
+              <button class="choice-card" data-value="icecream" type="button"><span class="emoji">🍨</span>גלידה</button>
+              <button class="choice-card" data-value="waffle" type="button"><span class="emoji">🧇</span>וופל בלגי</button>
+              <button class="choice-card" data-value="pancake" type="button"><span class="emoji">🥞</span>פנקייק</button>
+              <button class="choice-card" data-value="fruit" type="button"><span class="emoji">🍓</span>פירות</button>
+            </div>
+          </div>
+          <div class="choices-group">
+            <p class="group-label">🍫 רוטב</p>
+            <div class="choices grid-2" data-group="dessert-sauce">
+              <button class="choice-card" data-value="nutella" type="button"><span class="emoji">🍫</span>נוטלה</button>
+              <button class="choice-card" data-value="pistachio" type="button"><span class="emoji">🥑</span>פיסטוק</button>
+              <button class="choice-card" data-value="milkjam" type="button"><span class="emoji">🍯</span>ריבת חלב</button>
+            </div>
+          </div>
+          <div class="choices-group">
+            <p class="group-label">✨ תוספת</p>
+            <div class="choices grid-2" data-group="dessert-topping">
+              <button class="choice-card" data-value="folded" type="button"><span class="emoji">🍫</span>מקופלת</button>
+              <button class="choice-card" data-value="nuts" type="button"><span class="emoji">🥜</span>אגוזים</button>
+              <button class="choice-card" data-value="candy" type="button"><span class="emoji">🍬</span>סוכריות</button>
+              <button class="choice-card" data-value="cream" type="button"><span class="emoji">☁️</span>קצפת</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Step: playlist — always present, every branch -->
+        <section class="step" data-step="playlist">
+          <span class="eyebrow-icon">🎵</span>
+          <h2>איזה פלייליסט ננגן ברקע?</h2>
+          <p class="subtext">לבחור את הסאונדטראק המושלם לערב שלנו</p>
+          <button class="surprise-btn" data-surprise type="button"><span class="dice">🎲</span> תפתיע אותי!</button>
+          <div class="choices" data-group="playlist">
+            <button class="choice-card" data-value="jazz" type="button"><span class="emoji">🎷</span> ג'אז ויין רומנטי</button>
+            <button class="choice-card" data-value="israeli" type="button"><span class="emoji">🎸</span> להיטים ישראליים כיפיים</button>
+            <button class="choice-card" data-value="lovesongs" type="button"><span class="emoji">💖</span> שירים של אהבה</button>
+            <button class="choice-card" data-value="lofi" type="button"><span class="emoji">🎧</span> לופי ובאסים רגועים</button>
+          </div>
+        </section>
+
+        <!-- Step: note — always present, every branch, optional -->
+        <section class="step" data-step="note">
+          <span class="eyebrow-icon">💌</span>
+          <h2>יש לך בקשה מיוחדת?</h2>
+          <p class="subtext">שיר שבא לך שנשמע, או משהו שבא לך שאביא? 💭 (לא חובה)</p>
+          <textarea class="note-textarea" id="noteInput" rows="4" placeholder="כתבי כאן אם יש משהו..."></textarea>
+        </section>
+
         <!-- Step: summary -->
         <section class="step" data-step="summary">
           <div class="summary-photo-frame">
@@ -997,6 +1164,34 @@
             <span class="badge">❤️</span>
           </div>
           <h2>יש לנו דייט מושלם!</h2>
+
+          <div class="boarding-pass">
+            <div class="bp-top">
+              <div class="bp-title"><span>🎟️</span><span>כרטיס לדייט שלנו</span></div>
+              <div class="bp-names">איתי <span class="bp-heart">❤</span> ענבר</div>
+            </div>
+            <div class="bp-perforation" aria-hidden="true"></div>
+            <div class="bp-grid">
+              <div class="bp-field">
+                <span class="bp-field-label">תאריך</span>
+                <span class="bp-field-value" id="bpDate">—</span>
+              </div>
+              <div class="bp-field">
+                <span class="bp-field-label">שעה</span>
+                <span class="bp-field-value" id="bpTime">—</span>
+              </div>
+              <div class="bp-field">
+                <span class="bp-field-label">יעד</span>
+                <span class="bp-field-value" id="bpVibe">—</span>
+              </div>
+              <div class="bp-field">
+                <span class="bp-field-label">קוד לבוש</span>
+                <span class="bp-field-value" id="bpDress">—</span>
+              </div>
+            </div>
+            <div class="bp-barcode" aria-hidden="true"></div>
+          </div>
+
           <div class="summary-list" id="summaryList"></div>
 
           <div class="countdown-card">
@@ -1036,7 +1231,27 @@
     time: "",
     vibe: "",     // home | out | active | trip
     subopt: "",   // the step-3 choice (its meaning depends on vibe — see suboptLabels)
-    leaf: ""      // the step-4 choice, only present for home / out>restaurant / out>bar
+    leaf: "",     // the step-4 choice, only present for home / out>restaurant / out>bar
+    dessertBase: "", dessertSauce: "", dessertTopping: "", // only for home / out>restaurant
+    playlist: "", // background music choice — always present, every branch
+    note: ""      // free-text special request — always present, optional
+  };
+
+  var playlistLabels = {
+    jazz: "ג'אז ויין רומנטי 🎷",
+    israeli: "להיטים ישראליים כיפיים 🎸",
+    lovesongs: "שירים של אהבה 💖",
+    lofi: "לופי ובאסים רגועים 🎧"
+  };
+
+  var dessertBaseLabels = {
+    icecream: "גלידה 🍨", waffle: "וופל בלגי 🧇", pancake: "פנקייק 🥞", fruit: "פירות 🍓"
+  };
+  var dessertSauceLabels = {
+    nutella: "נוטלה 🍫", pistachio: "פיסטוק 🥑", milkjam: "ריבת חלב 🍯"
+  };
+  var dessertToppingLabels = {
+    folded: "מקופלת 🍫", nuts: "אגוזים 🥜", candy: "סוכריות 🍬", cream: "קצפת ☁️"
   };
 
   var vibeLabels = {
@@ -1097,28 +1312,66 @@
 
   // which leaf step (if any) follows the current vibe/subopt combination.
   // home always continues to its food/snacks step; out only continues for
-  // restaurant/bar (cinema and snooker go straight to the summary); active
-  // and trip never have a step 4.
+  // restaurant/bar (cinema and snooker go straight onward); active and trip
+  // never have a step 4.
   function leafGroupKey(){
     if(state.vibe === "home") return "home";
     if(state.vibe === "out" && (state.subopt === "restaurant" || state.subopt === "bar")) return state.subopt;
     return null;
   }
 
+  // the dessert builder only makes sense for a food-centric branch: any
+  // home evening, or an out>restaurant meal.
+  function dessertApplies(){
+    return state.vibe === "home" || (state.vibe === "out" && state.subopt === "restaurant");
+  }
+  function isDessertComplete(){
+    return !!(state.dessertBase && state.dessertSauce && state.dessertTopping);
+  }
+
+  // The full step sequence for the CURRENT branch (excluding "when" and
+  // "summary"), independent of how far it's actually been answered. Once
+  // vibe (and, for "out", subopt) are chosen, this is fixed — building it
+  // this way, rather than gating on answered-ness, keeps the progress
+  // trail's total stable as the user moves forward instead of growing/
+  // shrinking under them.
+  function fullStepOrder(){
+    var order = ["when", "vibe"];
+    if(!state.vibe) return order;
+    order.push("subopt-" + state.vibe);
+    if(state.vibe === "out" && !state.subopt) return order; // still ambiguous
+
+    var leafKey = leafGroupKey();
+    if(leafKey) order.push("leaf-" + leafKey);
+    if(dessertApplies()) order.push("dessert");
+    order.push("playlist");
+    order.push("note");
+    return order;
+  }
+
   function currentPath(){
     var path = ["when", "vibe"];
     if(!state.vibe) return path;
     path.push("subopt-" + state.vibe);
-
     if(!state.subopt) return path;
 
     var leafKey = leafGroupKey();
     if(leafKey){
       path.push("leaf-" + leafKey);
-      if(state.leaf){ path.push("summary"); }
-    } else {
-      path.push("summary"); // this branch has no step 4 — go straight to the recap
+      if(!state.leaf) return path;
     }
+
+    if(dessertApplies()){
+      path.push("dessert");
+      if(!isDessertComplete()) return path;
+    }
+
+    path.push("playlist");
+    if(!state.playlist) return path;
+
+    // "note" is optional — once reached, the recap is always reachable too
+    path.push("note");
+    path.push("summary");
     return path;
   }
 
@@ -1142,29 +1395,33 @@
     }
   }
 
-  function groupNameForStep(stepName){
-    if(stepName === "vibe") return "vibe";
-    if(stepName.indexOf("subopt-") === 0) return "subopt";
-    if(stepName.indexOf("leaf-") === 0) return "leaf";
-    return null;
-  }
+  // maps a .choices container's data-group attribute to the state field it
+  // drives. Shared by the click handler, the "surprise me" handler, and
+  // selection-restoring — one place that knows how every group maps to state.
+  var groupStateKey = {
+    vibe: "vibe",
+    subopt: "subopt",
+    leaf: "leaf",
+    playlist: "playlist",
+    "dessert-base": "dessertBase",
+    "dessert-sauce": "dessertSauce",
+    "dessert-topping": "dessertTopping"
+  };
 
+  // a step's position within its branch's fixed sequence — found by position
+  // in fullStepOrder() rather than a hardcoded number, so it stays correct
+  // automatically as optional steps (dessert) come and go per branch.
   function slotIndexForStep(stepName){
-    if(stepName === "when") return 0;
-    if(stepName === "vibe") return 1;
-    if(stepName.indexOf("subopt-") === 0) return 2;
-    if(stepName.indexOf("leaf-") === 0) return 3;
-    return -1;
+    return fullStepOrder().indexOf(stepName);
   }
 
-  // how many question-steps this branch has in total (3 when it ends right
-  // after step 3 — active, trip, out>cinema, out>snooker — otherwise 4).
-  // Used only to size the progress trail; falls back to the common case (4)
-  // whenever it isn't determined yet.
+  // how many question-steps this branch has in total. Used only to size the
+  // progress trail; falls back to a sensible guess whenever the branch isn't
+  // fully determined yet (vibe, and for "out" also subopt).
   function totalStepsForBranch(){
-    if(state.vibe === "active" || state.vibe === "trip") return 3;
-    if(state.vibe === "out" && (state.subopt === "cinema" || state.subopt === "snooker")) return 3;
-    return 4;
+    if(!state.vibe) return 7; // optimistic default: the richest common path
+    if(state.vibe === "out" && !state.subopt) return 6; // still ambiguous
+    return fullStepOrder().length;
   }
 
   function renderProgress(stepName){
@@ -1181,14 +1438,20 @@
     }
   }
 
+  // restores each .choices container's own selection from state, by its own
+  // data-group — handles both a step with one group (most steps) and a step
+  // with several independent groups answered side by side (the dessert
+  // builder's base/sauce/topping).
   function syncSelectedCards(stepName){
-    var group = groupNameForStep(stepName);
-    if(!group) return;
     var el = stepEl(stepName);
     if(!el) return;
-    var value = state[group];
-    el.querySelectorAll(".choice-card").forEach(function(btn){
-      btn.classList.toggle("selected", btn.dataset.value === value);
+    el.querySelectorAll(".choices").forEach(function(choicesEl){
+      var stateKey = groupStateKey[choicesEl.dataset.group];
+      if(!stateKey) return;
+      var value = state[stateKey];
+      choicesEl.querySelectorAll(".choice-card").forEach(function(btn){
+        btn.classList.toggle("selected", btn.dataset.value === value);
+      });
     });
   }
 
@@ -1197,20 +1460,17 @@
     if(stepName === "vibe") return !!state.vibe;
     if(stepName.indexOf("subopt-") === 0) return !!state.subopt;
     if(stepName.indexOf("leaf-") === 0) return !!state.leaf;
+    if(stepName === "dessert") return isDessertComplete();
+    if(stepName === "playlist") return !!state.playlist;
+    if(stepName === "note") return true; // optional
     return true;
   }
 
-  // true when the step the user is currently on is the last question before
-  // the recap. Always true for a leaf-* step. For subopt-out it depends on
-  // *which* of its four cards is chosen (restaurant/bar continue to a leaf
-  // step, cinema/snooker go straight to the summary) — computed from state
-  // directly rather than from step position, so the "הבא"/"סיימנו" label on
-  // the sticky nav bar is correct even before a next step has been reached.
+  // "note" is now the last question for every branch (it always immediately
+  // precedes the recap, right after the always-optional special-request
+  // box), so it's the only step that's ever final.
   function isFinalQuestionStep(stepName){
-    if(stepName.indexOf("leaf-") === 0) return true;
-    if(stepName === "subopt-active" || stepName === "subopt-trip") return true;
-    if(stepName === "subopt-out") return state.subopt === "cinema" || state.subopt === "snooker";
-    return false; // subopt-home always continues to leaf-home
+    return stepName === "note";
   }
 
   function updateNavButtons(stepName){
@@ -1275,28 +1535,44 @@
   });
 
   // ---------- surprise me ----------
+  // Rolls one random card per *distinct group* in the step. Most steps have
+  // a single group, so this picks one card overall (same as before); the
+  // dessert builder has three independent groups (base/sauce/topping), so
+  // this rolls all three at once to actually complete the step.
   document.querySelectorAll(".surprise-btn").forEach(function(surpriseBtn){
     surpriseBtn.addEventListener("click", function(){
       var stepSection = surpriseBtn.closest(".step");
       if(!stepSection) return;
-      var cards = Array.prototype.slice.call(stepSection.querySelectorAll(".choice-card"));
-      if(!cards.length) return;
 
-      // prefer a card other than the one already selected, so re-rolling
-      // actually feels like something happened
-      var currentlySelected = stepSection.querySelector(".choice-card.selected");
-      var pool = cards.filter(function(c){ return c !== currentlySelected; });
-      if(!pool.length) pool = cards;
-      var pick = pool[Math.floor(Math.random() * pool.length)];
+      var groupValues = [];
+      stepSection.querySelectorAll(".choices").forEach(function(c){
+        var g = c.dataset.group;
+        if(g && groupValues.indexOf(g) === -1) groupValues.push(g);
+      });
+      if(!groupValues.length) return;
 
       surpriseBtn.classList.remove("rolling");
       void surpriseBtn.offsetWidth;
       surpriseBtn.classList.add("rolling");
 
-      pick.scrollIntoView({ behavior: "smooth", block: "center" });
-      pick.classList.add("just-surprised");
-      window.setTimeout(function(){ pick.classList.remove("just-surprised"); }, 520);
-      pick.click(); // reuses the normal selection handler for state + nav updates
+      groupValues.forEach(function(groupValue, i){
+        var cards = Array.prototype.slice.call(
+          stepSection.querySelectorAll('.choices[data-group="' + groupValue + '"] .choice-card')
+        );
+        if(!cards.length) return;
+
+        // prefer a card other than the one already selected in THIS group,
+        // so re-rolling actually feels like something happened
+        var currentlySelected = stepSection.querySelector('.choices[data-group="' + groupValue + '"] .choice-card.selected');
+        var pool = cards.filter(function(c){ return c !== currentlySelected; });
+        if(!pool.length) pool = cards;
+        var pick = pool[Math.floor(Math.random() * pool.length)];
+
+        if(i === 0) pick.scrollIntoView({ behavior: "smooth", block: "center" });
+        pick.classList.add("just-surprised");
+        window.setTimeout(function(){ pick.classList.remove("just-surprised"); }, 520);
+        pick.click(); // reuses the normal selection handler for state + nav updates
+      });
     });
   });
 
@@ -1309,11 +1585,16 @@
     state.time = e.target.value;
     nextBtn.disabled = !isStepValid("when");
   });
+  document.getElementById("noteInput").addEventListener("input", function(e){
+    state.note = e.target.value; // free text, optional — never gates nextBtn
+  });
 
-  // Delegated at the step level (not per .choices div): a step like
-  // leaf-home holds two separate .choices containers (food + snacks) that
-  // share one logical group, so picking a card in either one must clear
-  // the selection in both.
+  // Delegated at the step level (not per .choices div): a step can hold
+  // several .choices containers that are either one logical group spread
+  // across two sections (leaf-home's food + snacks share group="leaf") or
+  // several independent groups answered side by side (the dessert
+  // builder's base/sauce/topping). Selection is cleared per *matching
+  // data-group value* so independent sibling groups don't clobber each other.
   document.querySelectorAll(".step").forEach(function(stepSection){
     stepSection.addEventListener("click", function(e){
       var btn = e.target.closest(".choice-card");
@@ -1322,19 +1603,20 @@
       if(!choicesEl) return;
       var groupName = choicesEl.dataset.group;
       var value = btn.dataset.value;
+      var stateKey = groupStateKey[groupName];
+      if(!stateKey) return;
 
       if(groupName === "vibe"){
-        state.vibe = value;
         state.subopt = "";
         state.leaf = "";
+        // state.playlist / dessert*/note are deliberately left untouched —
+        // they don't depend on the date's vibe/branch
       } else if(groupName === "subopt"){
-        state.subopt = value;
         state.leaf = "";
-      } else if(groupName === "leaf"){
-        state.leaf = value;
       }
+      state[stateKey] = value;
 
-      stepSection.querySelectorAll(".choice-card").forEach(function(b){
+      stepSection.querySelectorAll('.choices[data-group="' + groupName + '"] .choice-card').forEach(function(b){
         b.classList.toggle("selected", b === btn);
       });
 
@@ -1355,9 +1637,11 @@
     stopConfetti();
     stopCountdown();
     document.getElementById("couponCard").classList.remove("revealed");
-    state = { date:"", time:"", vibe:"", subopt:"", leaf:"" };
+    state = { date:"", time:"", vibe:"", subopt:"", leaf:"",
+      dessertBase:"", dessertSauce:"", dessertTopping:"", playlist:"", note:"" };
     document.getElementById("dateInput").value = "";
     document.getElementById("timeInput").value = "";
+    document.getElementById("noteInput").value = "";
     document.querySelectorAll(".choice-card.selected").forEach(function(b){ b.classList.remove("selected"); });
     goToStep("when", "forward");
   });
@@ -1384,27 +1668,67 @@
     return (key && leafLabels[key] && leafLabels[key][state.leaf]) || "";
   }
 
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, function(ch){
+      return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[ch];
+    });
+  }
+
+  // a light, smart/funny dress-code suggestion based on the overall vibe
+  function getDressCode(){
+    if(state.vibe === "home") return "פיג'מה או בגדים הכי נוחים בבית 🛋️";
+    if(state.vibe === "active") return "בגדי ספורט / בגד ים 👙";
+    if(state.vibe === "out") return "להתלבש הכי יפה שיש! 👗✨";
+    if(state.vibe === "trip") return "בגדים נוחים וסטייל יומיומי לטיול 👟🧥";
+    return "";
+  }
+
+  function getDessertText(){
+    if(!dessertApplies() || !isDessertComplete()) return "";
+    return dessertBaseLabels[state.dessertBase] + " עם " + dessertSauceLabels[state.dessertSauce] +
+      " ו" + dessertToppingLabels[state.dessertTopping];
+  }
+
   function renderSummary(){
+    // boarding-pass ticket: the headline facts (names are fixed — it's our
+    // date), date/time/vibe/dress-code
+    document.getElementById("bpDate").textContent = formatDateHe(state.date);
+    document.getElementById("bpTime").textContent = state.time;
+    document.getElementById("bpVibe").textContent = vibeLabels[state.vibe] || "";
+    document.getElementById("bpDress").textContent = getDressCode();
+
     var list = document.getElementById("summaryList");
     list.innerHTML = "";
 
     var leafText = leafTextFor();
+    var dessertText = getDessertText();
 
+    // date/time/vibe/dress-code already live on the ticket above — the list
+    // covers everything else so nothing is shown twice
     var rows = [
-      { icon:"📅", sub:"תאריך", text: formatDateHe(state.date) },
-      { icon:"🕐", sub:"שעה", text: state.time },
-      { icon: vibeIcons[state.vibe] || "💫", sub:"איפה", text: vibeLabels[state.vibe] || "" },
       { icon:"✨", sub:"תוכנית", text: suboptLabels[state.subopt] || "" }
     ];
     if(leafText){
       rows.push({ icon:"🍽️", sub:"בחירה", text: leafText });
     }
+    if(dessertText){
+      rows.push({ icon:"🍦", sub:"הקינוח שבנינו", text: dessertText });
+    }
+    rows.push({ icon:"🎵", sub:"פלייליסט", text: playlistLabels[state.playlist] || "" });
+    rows.push({ icon:"👑", sub:"הטבה מיוחדת", text: "כרטיס VIP נשיאותי: מותר לך להחליף בחירה אחת עד שעה לפני הדייט!" });
+    rows.push({ icon:"☀️", sub:"תחזית לדייט", text: "100% סיכוי לאווירה מושלמת, נשיקות וחיבוקים ❤️" });
+    if(state.note && state.note.trim()){
+      rows.push({ icon:"💭", sub:"בקשה מיוחדת", text: state.note.trim() });
+    }
 
     rows.forEach(function(r){
       var row = document.createElement("div");
       row.className = "summary-row";
+      // r.text may be the free-text special-request note (user input) —
+      // escaped since this is built via innerHTML, so something as plausible
+      // as "<3" in her note renders as text instead of breaking the markup
       row.innerHTML = '<span class="icon">' + r.icon + '</span>' +
-        '<span class="text"><span class="sub">' + r.sub + '</span>' + r.text + '</span>';
+        '<span class="text"><span class="sub">' + r.sub + '</span>' + escapeHtml(r.text) + '</span>';
       list.appendChild(row);
     });
 
@@ -1480,9 +1804,14 @@
       "⏰ שעה: " + state.time,
       "📍 מיקום: " + (vibeLabels[state.vibe] || ""),
       "🍽️ אופי הדייט והסגנון: " + styleLine,
-      "",
-      "מחכה לזה כבר! 😘"
+      "🎵 פלייליסט: " + (playlistLabels[state.playlist] || "")
     ];
+
+    var dessertText = getDessertText();
+    if(dessertText){ lines.push("🍦 הקינוח: " + dessertText); }
+    if(state.note && state.note.trim()){ lines.push("💭 בקשה מיוחדת: " + state.note.trim()); }
+
+    lines.push("", "מחכה לזה כבר! 😘");
     return lines.join("\n");
   }
 
