@@ -1027,39 +1027,54 @@
     unicode-bidi:isolate;
   }
 
-  /* ---------- tap-to-reveal coupon ---------- */
-  .coupon-card{
-    appearance:none;
-    width:100%;
-    border:2px dashed var(--gold);
-    background:var(--pink-soft-2);
-    border-radius:18px;
-    padding:16px 14px;
-    margin-bottom:12px;
-    cursor:pointer;
-    font-family:'Assistant', sans-serif;
+  /* ---------- real scratch-off card (HTML5 canvas) ----------
+     Two layers: the prize text sits underneath in normal flow (so its
+     content determines the card's height), and the canvas lays over it at
+     inset:0, matching that height exactly. Dragging a finger/mouse across
+     the canvas erases a circular brush via destination-out compositing,
+     revealing the prize text beneath pixel by pixel. */
+  .scratch-label{
+    text-align:center;
+    font-size:.82rem;
     font-weight:700;
-    font-size:.95rem;
-    color:var(--rose-deep);
-    line-height:1.5;
-    transition: background .25s var(--ease), border-color .25s var(--ease), transform .2s var(--ease);
+    color:var(--ink-muted);
+    margin:0 0 8px;
   }
-  .coupon-card:hover{ background:var(--card); }
-  .coupon-card:active{ transform:scale(.98); }
-  .coupon-card:focus-visible{ outline:3px solid var(--gold); outline-offset:2px; }
-  .coupon-card .coupon-back{ display:none; }
-  .coupon-card.revealed{
+  .scratch-card{
+    position:relative;
+    border-radius:18px;
+    overflow:hidden;
+    margin-bottom:12px;
+    border:2px solid rgba(162,59,92,0.15);
+    box-shadow:0 10px 24px -12px rgba(162,59,92,0.4);
+  }
+  .scratch-prize{
+    margin:0;
+    min-height:118px;
+    padding:20px 22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
     background:linear-gradient(135deg, var(--gold), var(--peach));
-    border-style:solid;
     color:var(--on-warm);
-    animation: coupon-reveal .4s var(--ease);
+    font-weight:700;
+    font-size:1.05rem;
+    line-height:1.5;
   }
-  .coupon-card.revealed .coupon-front{ display:none; }
-  .coupon-card.revealed .coupon-back{ display:block; }
-  @keyframes coupon-reveal{
-    0%{ transform:scale(.95); }
-    55%{ transform:scale(1.03); }
-    100%{ transform:scale(1); }
+  .scratch-canvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    touch-action:none; /* so dragging the finger scratches instead of scrolling the page */
+    cursor:grab;
+    transition:opacity .5s ease;
+  }
+  .scratch-canvas:active{ cursor:grabbing; }
+  .scratch-canvas.scratch-revealed{
+    opacity:0;
+    pointer-events:none;
   }
 
   /* ---------- "no phones" romantic contract ---------- */
@@ -1537,10 +1552,11 @@
             <p class="fortune-text" id="fortuneText">געי בכדור לתחזית רומנטית לדייט...</p>
           </div>
 
-          <button class="coupon-card" id="couponCard" type="button">
-            <span class="coupon-front">לחצי לחשיפת השובר הסודי 🎁</span>
-            <span class="coupon-back">קיבלת קופון למסאז' מפנק של 20 דקות בסוף הדייט 💆‍♀️✨</span>
-          </button>
+          <p class="scratch-label">כרטיס פרסים — גרדי וגלי מה זכית בו! 🎰</p>
+          <div class="scratch-card">
+            <p class="scratch-prize" id="scratchPrizeText"></p>
+            <canvas class="scratch-canvas" id="scratchCanvas"></canvas>
+          </div>
 
           <label class="contract-check">
             <input type="checkbox" id="phoneContract">
@@ -2147,7 +2163,6 @@
   document.getElementById("restartBtn").addEventListener("click", function(){
     stopConfetti();
     stopCountdown();
-    document.getElementById("couponCard").classList.remove("revealed");
     fortuneText.textContent = FORTUNE_DEFAULT_TEXT;
     fortuneText.classList.remove("revealed");
     lastFortuneIndex = -1;
@@ -2164,9 +2179,145 @@
     goToStep("when", "forward");
   });
 
-  // ---------- tap-to-reveal coupon ----------
-  document.getElementById("couponCard").addEventListener("click", function(){
-    this.classList.toggle("revealed");
+  // ---------- real scratch-off card ----------
+  var scratchPrizes = [
+    "💳 זכית! איתי משלם על כל הדייט היום!",
+    "💋 זכית בנשיקה ארוכה וחיבוק חם מתנה ממני!",
+    "💆‍♀️ זכית במסאז' מפנק של 20 דקות בסוף הדייט!",
+    "🍨 זכית בקינוח מושקע נוסף על חשבון איתי!",
+    "👑 זכית ב-VIP: זכות וטו להחליף מקום/אוכל ברגע האחרון!",
+    "☕ זכית בפינוק: איתי מכין לך קפה ומשהו מתוק למיטה בבוקר!"
+  ];
+  var scratchCanvas = document.getElementById("scratchCanvas");
+  var scratchCtx = scratchCanvas.getContext("2d");
+  var scratchPrizeEl = document.getElementById("scratchPrizeText");
+  var scratchPrize = "";
+  var scratchRevealed = false;
+  var scratchedCells = null;
+  var SCRATCH_GRID = 18; // percentage tracked via a cheap grid, not a full pixel scan
+  var isScratching = false;
+
+  function drawScratchSurface(){
+    var w = scratchCanvas.clientWidth;
+    var h = scratchCanvas.clientHeight;
+    var dpr = window.devicePixelRatio || 1;
+    scratchCanvas.width = w * dpr;
+    scratchCanvas.height = h * dpr;
+    scratchCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    scratchCtx.globalCompositeOperation = "source-over";
+
+    var grad = scratchCtx.createLinearGradient(0, 0, w, h);
+    grad.addColorStop(0, "#E7E7EC");
+    grad.addColorStop(0.35, "#FDFDFF");
+    grad.addColorStop(0.55, "#D7B567");
+    grad.addColorStop(0.8, "#F4E2AC");
+    grad.addColorStop(1, "#C9C9CE");
+    scratchCtx.fillStyle = grad;
+    scratchCtx.fillRect(0, 0, w, h);
+
+    scratchCtx.fillStyle = "rgba(90,70,40,0.55)";
+    scratchCtx.font = "700 15px Assistant, sans-serif";
+    scratchCtx.textAlign = "center";
+    scratchCtx.textBaseline = "middle";
+    scratchCtx.fillText("גרדי כאן לגילוי הפרס שלך 🎁", w / 2, h / 2);
+  }
+
+  // called fresh every time the summary screen loads — new prize, new card
+  function initScratchCard(){
+    scratchPrize = scratchPrizes[Math.floor(Math.random() * scratchPrizes.length)];
+    scratchPrizeEl.textContent = scratchPrize;
+    scratchRevealed = false;
+    scratchedCells = {};
+    isScratching = false;
+    scratchCanvas.classList.remove("scratch-revealed");
+    scratchCanvas.style.opacity = "";
+    drawScratchSurface();
+  }
+
+  function scratchPointerPos(e){
+    var rect = scratchCanvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+
+  function scratchPercent(){
+    var total = SCRATCH_GRID * SCRATCH_GRID;
+    return Object.keys(scratchedCells).length / total;
+  }
+
+  var SCRATCH_RADIUS = 24; // px — the brush size, shared with the % tracker below
+
+  function scratchAt(x, y){
+    scratchCtx.globalCompositeOperation = "destination-out";
+    scratchCtx.beginPath();
+    scratchCtx.arc(x, y, SCRATCH_RADIUS, 0, Math.PI * 2);
+    scratchCtx.fill();
+
+    var w = scratchCanvas.clientWidth, h = scratchCanvas.clientHeight;
+    if(w <= 0 || h <= 0) return;
+    // mark every grid cell the brush circle actually covers (not just the
+    // single cell under the sample point) — otherwise the tracked
+    // percentage lags far behind the visually erased area, and the 50%
+    // threshold barely triggers even after heavy scratching.
+    var cellW = w / SCRATCH_GRID, cellH = h / SCRATCH_GRID;
+    var colSpan = Math.ceil(SCRATCH_RADIUS / cellW);
+    var rowSpan = Math.ceil(SCRATCH_RADIUS / cellH);
+    var centerCol = Math.floor((x / w) * SCRATCH_GRID);
+    var centerRow = Math.floor((y / h) * SCRATCH_GRID);
+    for(var r = centerRow - rowSpan; r <= centerRow + rowSpan; r++){
+      if(r < 0 || r >= SCRATCH_GRID) continue;
+      for(var c = centerCol - colSpan; c <= centerCol + colSpan; c++){
+        if(c < 0 || c >= SCRATCH_GRID) continue;
+        scratchedCells[r + "_" + c] = true;
+      }
+    }
+
+    if(!scratchRevealed && scratchPercent() >= 0.5){
+      revealScratchPrize();
+    }
+  }
+
+  function revealScratchPrize(){
+    scratchRevealed = true;
+    scratchCanvas.classList.add("scratch-revealed"); // fades the rest of the foil away
+    launchConfetti();
+    playRevealChime();
+    updateWhatsAppLink(); // the WhatsApp message can now include the won prize
+  }
+
+  function playRevealChime(){
+    try{
+      if(!audioCtx){ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+      var now = audioCtx.currentTime;
+      [523.25, 659.25, 783.99].forEach(function(freq, i){ // C5, E5, G5 — a little "win" arpeggio
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        var start = now + i * 0.09;
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.09, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.35);
+        osc.connect(gain).connect(audioCtx.destination);
+        osc.start(start);
+        osc.stop(start + 0.4);
+      });
+    }catch(err){ /* no sound — reveal still works */ }
+  }
+
+  scratchCanvas.addEventListener("pointerdown", function(e){
+    if(scratchRevealed) return;
+    isScratching = true;
+    scratchCanvas.setPointerCapture(e.pointerId);
+    var pos = scratchPointerPos(e);
+    scratchAt(pos.x, pos.y);
+  });
+  scratchCanvas.addEventListener("pointermove", function(e){
+    if(!isScratching || scratchRevealed) return;
+    var pos = scratchPointerPos(e);
+    scratchAt(pos.x, pos.y);
+  });
+  ["pointerup", "pointercancel"].forEach(function(evt){
+    scratchCanvas.addEventListener(evt, function(){ isScratching = false; });
   });
 
   // ---------- "no phones" romantic contract ----------
@@ -2256,6 +2407,8 @@
   }
 
   function renderSummary(){
+    initScratchCard(); // a fresh randomized prize + unscratched card every time
+
     document.getElementById("polaroidCaption").textContent =
       "Date Night: Itay & My Love ❤️ - " + formatDateShort(state.date);
 
@@ -2380,6 +2533,7 @@
     if(dessertText){ lines.push("🍦 הקינוח: " + dessertText); }
     if(state.note && state.note.trim()){ lines.push("💭 בקשה מיוחדת: " + state.note.trim()); }
     if(state.phoneContract){ lines.push("🤫 חוזה דייט: הנייד בצד, 100% תשומת לב אחד לשנייה ❤️"); }
+    if(scratchRevealed){ lines.push("🎁 הפרס שגרדתי בכרטיס המזל: " + scratchPrize); }
 
     lines.push("", "מחכה לזה כבר! 😘");
     return lines.join("\n");
