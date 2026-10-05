@@ -29,59 +29,45 @@
     --radius-pill: 999px;
     --ease: cubic-bezier(.22,1,.36,1);
 
-
-    .quick-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 8px;
-  margin-bottom: 14px;
-}
-.chip-btn {
-  appearance: none;
-  border: 1px solid var(--pink-soft);
-  background: var(--card);
-  color: var(--ink);
-  padding: 6px 14px;
-  border-radius: var(--radius-pill);
-  font-family: 'Assistant', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s var(--ease);
-}
-.chip-btn:hover {
-  border-color: var(--rose-mid);
-  background: var(--pink-soft-2);
-}
-.chip-btn.selected {
-  background: var(--rose-mid);
-  color: #fff;
-  border-color: var(--rose-deep);
-}
-
-    /* fixed deep-berry pair used ONLY for gradient fills behind white text
-       (primary buttons, selected cards) — kept constant across themes on
-       purpose, since --rose-deep/--rose-mid themselves flip to a bright
-       candlelight gold in dark mode (their other role: heading/accent TEXT
-       read against the page, which needs to go light-on-dark there). A
-       single fixed deep tone keeps white button text legible either way. */
+    /* fixed deep-berry pair used ONLY for gradient fills behind white text */
     --grad-start:#BE4F74;
     --grad-end:#A23B5C;
 
-    /* fixed dark text color for anything sitting on the gold/peach gradient
-       (coupon reveal, quiz match badge) — those two colors stay bright in
-       BOTH themes, so the text on top of them must stay dark in both too,
-       unlike --ink which deliberately flips light-on-dark for everything
-       else. Verified ≥5.4:1 against both themes' gold and peach. */
+    /* fixed dark text color for anything sitting on the gold/peach gradient */
     --on-warm:#3A2318;
   }
 
-  /* ---------- candlelight dark theme ----------
-     Manual switcher only (not tied to system preference) — toggled via the
-     🕯️ button and persisted in localStorage. Every color below is a CSS
-     variable already, so this single block re-themes the entire app with
-     no per-component overrides needed. */
+  .quick-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+    margin-bottom: 14px;
+  }
+  .chip-btn {
+    appearance: none;
+    border: 1px solid var(--pink-soft);
+    background: var(--card);
+    color: var(--ink);
+    padding: 6px 14px;
+    border-radius: var(--radius-pill);
+    font-family: 'Assistant', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s var(--ease);
+  }
+  .chip-btn:hover {
+    border-color: var(--rose-mid);
+    background: var(--pink-soft-2);
+  }
+  .chip-btn.selected {
+    background: var(--rose-mid);
+    color: #fff;
+    border-color: var(--rose-deep);
+  }
+
+  /* ---------- candlelight dark theme ---------- */
   :root[data-theme="dark"]{
     --cream:#1C1013;
     --card:#2A1A20;
@@ -181,19 +167,11 @@
     50%{ box-shadow:0 0 0 1px rgba(243,200,120,0.5), 0 0 22px 4px rgba(243,200,120,0.6); }
   }
 
-  /* re-theme smoothly rather than snapping when the toggle is tapped.
-     (.choice-card and a few others already declare their own `transition`
-     further down and would silently win that cascade, so they're
-     deliberately left out here rather than listed as dead code.) */
   body, .wizard-card, .boarding-pass, .countdown-card, .modal-card{
     transition: background-color .35s var(--ease), color .35s var(--ease), border-color .35s var(--ease);
   }
 
-  /* ---------- app shell ----------
-     Mobile-first: the card fills the whole viewport edge-to-edge like a
-     native app screen, with safe-area-aware padding and a sticky bottom
-     action bar. A min-width media query further down restores the
-     floating, bordered "card on a page" look for tablet/desktop. */
+  /* ---------- app shell ---------- */
   .app{
     position:relative;
     z-index:1;
@@ -218,14 +196,6 @@
       calc(env(safe-area-inset-left, 0px) + 20px);
   }
 
-  /* Note: deliberately NOT clipped with overflow:hidden on .wizard-card, and
-     deliberately NOT poking outside the box via negative inset values —
-     combining overflow:hidden with a descendant positioned past the box
-     edge triggers a Chromium layout bug in RTL that shifts all in-flow
-     content (and an unclipped poking element overflows the viewport
-     instead). Keeping the glow fully inside its own box and nudging it
-     purely with a transform (paint-only, doesn't affect layout/scrollable
-     overflow) sidesteps both failure modes. */
   .wizard-card::before{
     content:"";
     position:absolute;
@@ -321,7 +291,7 @@
     margin-bottom:6px;
   }
 
-  /* ---------- cover photo frame (reused by the welcome modal) ---------- */
+  /* ---------- cover photo frame ---------- */
   .cover-photo-frame{
     width:168px;
     height:168px;
@@ -347,10 +317,7 @@
     transform:rotate(12deg);
   }
 
-  /* ---------- welcome modal ----------
-     Appears over everything the instant the page loads; the wizard behind
-     it is already prepared at step 1, so dismissing the modal reveals the
-     date/time step immediately with no extra tap. */
+  /* ---------- welcome modal ---------- */
   .modal-overlay{
     position:fixed;
     inset:0;
@@ -457,7 +424,7 @@
     color-scheme: light;
   }
 
-  /* ---------- wheel-of-fortune entry point (on the "when" step) ---------- */
+  /* ---------- wheel-of-fortune entry point ---------- */
   .wheel-cta{ margin-top:22px; text-align:center; }
   .wheel-cta-divider{
     display:flex;
@@ -607,8 +574,6 @@
     grid-column: 1 / -1;
   }
 
-  /* a step that bundles two labeled sub-groups of choices into one
-     question (e.g. "food" + "snacks" under one home-evening leaf step) */
   .choices-group + .choices-group{
     margin-top:18px;
   }
@@ -701,9 +666,6 @@
     font-weight:700;
   }
 
-  /* tap feedback: a short, deliberate "pop" the instant a card is chosen —
-     a transient class toggled by JS, not a permanent transition, so it
-     reads as one tap response rather than a looping/hover effect. */
   @keyframes pop-select{
     0%{ transform:translateY(-2px) scale(1); }
     45%{ transform:translateY(-2px) scale(1.045); }
@@ -713,12 +675,7 @@
     animation: pop-select .32s var(--ease);
   }
 
-
-  /* ---------- nav buttons ----------
-     Sticky bottom action bar: on a short step it simply sits at the foot
-     of the flex column; on a step tall enough to need scrolling, it stays
-     reachable at the bottom of the viewport like a native app's action
-     bar, instead of requiring a scroll all the way down. */
+  /* ---------- nav buttons ---------- */
   .nav-buttons{
     display:flex;
     justify-content:space-between;
@@ -789,10 +746,6 @@
     margin-top:12px;
   }
 
-  /* WhatsApp CTA: brand-recognizable but deepened from WhatsApp's signature
-     bright green (#25D366) to a darker green/teal pairing — the bright
-     version fails contrast with white text (1.98:1); this reads clearly
-     as "WhatsApp" while staying accessible (5.2:1 / 7.7:1). */
   .btn-whatsapp{
     display:flex;
     align-items:center;
@@ -814,10 +767,6 @@
   }
 
   /* ---------- summary ---------- */
-  /* An instant-print polaroid: white card, square photo, a caption strip
-     along the bottom in a handwriting face. Deliberately fixed-color (white
-     card, dark caption ink) in both themes — a physical polaroid doesn't
-     change with the room's lighting, and staying recognizable is the point. */
   .polaroid{
     width:min(78vw, 220px);
     margin:0 auto 10px;
@@ -896,15 +845,7 @@
   }
   .fortune-text.revealed{ color:var(--rose-deep); font-weight:700; }
 
-  /* ---------- boarding-pass ticket ----------
-     Deliberately not clipped with overflow:hidden — see the note on
-     .wizard-card above for why that combo is unsafe here (it pairs
-     overflow:hidden with content positioned past the box edge, which
-     triggers a Chromium RTL layout bug). The perforation "notches" are
-     instead sized and placed fully within their own box and nudged purely
-     with a transform (paint-only, doesn't affect layout/scrollable
-     overflow), landing visually half-outside the card without needing any
-     clipping — their fill color matches the page behind them either way. */
+  /* ---------- boarding-pass ticket ---------- */
   .boarding-pass{
     background:var(--pink-soft-2);
     border-radius:18px;
@@ -1058,12 +999,7 @@
     unicode-bidi:isolate;
   }
 
-  /* ---------- real scratch-off card (HTML5 canvas) ----------
-     Two layers: the prize text sits underneath in normal flow (so its
-     content determines the card's height), and the canvas lays over it at
-     inset:0, matching that height exactly. Dragging a finger/mouse across
-     the canvas erases a circular brush via destination-out compositing,
-     revealing the prize text beneath pixel by pixel. */
+  /* ---------- real scratch-off card ---------- */
   .scratch-label{
     text-align:center;
     font-size:.82rem;
@@ -1098,7 +1034,7 @@
     inset:0;
     width:100%;
     height:100%;
-    touch-action:none; /* so dragging the finger scratches instead of scrolling the page */
+    touch-action:none;
     cursor:grab;
     transition:opacity .5s ease;
   }
@@ -1158,10 +1094,6 @@
     .cover-photo-frame{ width:140px; height:140px; }
   }
 
-  /* ---------- larger screens: restore the floating "card on a page" look ----------
-     Below this, the app is an edge-to-edge mobile screen (the primary target).
-     From here up, give it room to breathe as a centered, bordered card instead
-     of stretching an app-shell layout across a tablet/desktop viewport. */
   @media (min-width:481px){
     body{ display:flex; justify-content:center; padding:40px 16px; }
     .app{ min-height:auto; }
@@ -1249,9 +1181,7 @@
 
       <div class="step-viewport">
 
-        <!-- Step: quiz — a fun, inconsequential icebreaker before the real
-             planning starts (outside the progress trail, like the welcome
-             modal; always resolves to a 100% match no matter what's tapped) -->
+        <!-- Step: quiz -->
         <section class="step" data-step="quiz">
           <span class="eyebrow-icon">🎯</span>
           <h2>רגע לפני שמתחילים...</h2>
@@ -1297,7 +1227,8 @@
                 <input type="date" id="dateInput" />
               </label>
             </div>
-                        <!-- בחירה מהירה של ימים -->
+            
+            <!-- בחירה מהירה של ימים -->
             <div class="quick-chips" id="dayChips">
               <button type="button" class="chip-btn" data-day-offset="0">היום</button>
               <button type="button" class="chip-btn" data-day-offset="1">מחר</button>
@@ -1306,24 +1237,23 @@
               <button type="button" class="chip-btn" data-target-day="5">שישי הקרוב</button>
               <button type="button" class="chip-btn" data-target-day="6">שבת הקרובה</button>
             </div>
+
             <div class="field">
-
-
-
-                        <!-- בחירה מהירה של שעות -->
-          <div class="quick-chips" id="timeChips">
-            <button type="button" class="chip-btn" data-time="19:00">19:00</button>
-            <button type="button" class="chip-btn" data-time="19:30">19:30</button>
-            <button type="button" class="chip-btn" data-time="20:00">20:00</button>
-            <button type="button" class="chip-btn" data-time="20:30">20:30</button>
-            <button type="button" class="chip-btn" data-time="21:00">21:00</button>
-            <button type="button" class="chip-btn" data-time="21:30">21:30</button>
-          </div>
               <span class="field-icon">🕐</span>
               <label>
                 <span class="field-label">שעה</span>
                 <input type="time" id="timeInput" step="1800" />
               </label>
+            </div>
+
+            <!-- בחירה מהירה של שעות -->
+            <div class="quick-chips" id="timeChips">
+              <button type="button" class="chip-btn" data-time="19:00">19:00</button>
+              <button type="button" class="chip-btn" data-time="19:30">19:30</button>
+              <button type="button" class="chip-btn" data-time="20:00">20:00</button>
+              <button type="button" class="chip-btn" data-time="20:30">20:30</button>
+              <button type="button" class="chip-btn" data-time="21:00">21:00</button>
+              <button type="button" class="chip-btn" data-time="21:30">21:30</button>
             </div>
           </div>
 
@@ -1361,7 +1291,7 @@
           </div>
         </section>
 
-        <!-- Step 3: subopt-home — "what are we doing tonight" activity choice -->
+        <!-- Step 3: subopt-home -->
         <section class="step" data-step="subopt-home">
           <span class="eyebrow-icon">🏡</span>
           <h2>מה בא לנו הערב?</h2>
@@ -1379,7 +1309,7 @@
             </button>
             <button class="choice-card has-photo" data-value="wine" type="button">
               <img class="card-photo" src="images/wine-night.jpg" alt="">
-              <span class="card-text"><span class="emoji">🍷</span> יושבים על בקבוק יין</span>
+              <span class="card-text"><span class="emoji">🍷</span> יושבים על בקבוק ייין</span>
             </button>
             <button class="choice-card" data-value="paint" type="button">
               <span class="emoji">🎨</span> מציירים ביחד
@@ -1411,7 +1341,7 @@
           </div>
         </section>
 
-        <!-- Step 3: subopt-active (terminal — no step 4) -->
+        <!-- Step 3: subopt-active -->
         <section class="step" data-step="subopt-active">
           <span class="eyebrow-icon">🏄‍♂️</span>
           <h2>מה עושים?</h2>
@@ -1424,7 +1354,7 @@
           </div>
         </section>
 
-        <!-- Step 3: subopt-trip (terminal — no step 4) -->
+        <!-- Step 3: subopt-trip -->
         <section class="step" data-step="subopt-trip">
           <span class="eyebrow-icon">🛍️</span>
           <h2>לאן יוצאים?</h2>
@@ -1439,7 +1369,7 @@
           </div>
         </section>
 
-        <!-- Step 4: leaf-home — food AND snacks, one combined question -->
+        <!-- Step 4: leaf-home -->
         <section class="step" data-step="leaf-home">
           <span class="eyebrow-icon">🍽️</span>
           <h2>על מה מתחשק לנו?</h2>
@@ -1501,7 +1431,7 @@
           </div>
         </section>
 
-        <!-- Step: dessert — only for a home evening or an out>restaurant meal -->
+        <!-- Step: dessert -->
         <section class="step" data-step="dessert">
           <span class="eyebrow-icon">🍦</span>
           <h2>הרכיבי את הקינוח המושלם</h2>
@@ -1534,7 +1464,7 @@
           </div>
         </section>
 
-        <!-- Step: playlist — always present, every branch -->
+        <!-- Step: playlist -->
         <section class="step" data-step="playlist">
           <span class="eyebrow-icon">🎵</span>
           <h2>איזה פלייליסט ננגן ברקע?</h2>
@@ -1547,7 +1477,7 @@
           </div>
         </section>
 
-        <!-- Step: note — always present, every branch, optional -->
+        <!-- Step: note -->
         <section class="step" data-step="note">
           <span class="eyebrow-icon">💌</span>
           <h2>יש לך בקשה מיוחדת?</h2>
@@ -1635,72 +1565,16 @@
   </main>
 
 <script>
-
-
-  document.getElementById("timeChips").addEventListener("click", function(e){
-  var btn = e.target.closest(".chip-btn");
-  if(!btn) return;
-
-  var selectedTime = btn.dataset.time;
-  var timeInput = document.getElementById("timeInput");
-  timeInput.value = selectedTime;
-  state.time = selectedTime;
-
-  document.querySelectorAll("#timeChips .chip-btn").forEach(function(b){ b.classList.remove("selected"); });
-  btn.classList.add("selected");
-
-  nextBtn.disabled = !isStepValid("when");
-  openWheelBtn.disabled = !isStepValid("when");
-});
-
-  function formatDateToISO(d) {
-  var year = d.getFullYear();
-  var month = String(d.getMonth() + 1).padStart(2, '0');
-  var day = String(d.getDate()).padStart(2, '0');
-  return year + '-' + month + '-' + day;
-}
-
-document.getElementById("dayChips").addEventListener("click", function(e){
-  var btn = e.target.closest(".chip-btn");
-  if(!btn) return;
-
-  var today = new Date();
-  var targetDate = new Date();
-
-  if(btn.dataset.dayOffset !== undefined) {
-    targetDate.setDate(today.getDate() + parseInt(btn.dataset.dayOffset, 10));
-  } else if(btn.dataset.targetDay !== undefined) {
-    var targetDayIndex = parseInt(btn.dataset.targetDay, 10);
-    var diff = targetDayIndex - today.getDay();
-    if (diff <= 0) diff += 7; // מעביר ליום הקרוב בשבוע הקרוב
-    targetDate.setDate(today.getDate() + diff);
-  }
-
-  var formatted = formatDateToISO(targetDate);
-  var dateInput = document.getElementById("dateInput");
-  dateInput.value = formatted;
-  state.date = formatted;
-
-  document.querySelectorAll("#dayChips .chip-btn").forEach(function(b){ b.classList.remove("selected"); });
-  btn.classList.add("selected");
-
-  nextBtn.disabled = !isStepValid("when");
-  openWheelBtn.disabled = !isStepValid("when");
-});
-  
 (function(){
   "use strict";
 
-  // ---------- candlelight theme toggle ----------
-  // applied immediately (before the rest of init) so there's no flash of
-  // the wrong theme on repeat visits.
   var THEME_KEY = "dateNightPlannerTheme";
   (function initTheme(){
     try{
       if(localStorage.getItem(THEME_KEY) === "dark"){
         document.documentElement.setAttribute("data-theme", "dark");
       }
-    }catch(err){ /* localStorage unavailable (private mode, etc.) — default to light */ }
+    }catch(err){}
   })();
 
   document.getElementById("themeToggle").addEventListener("click", function(){
@@ -1711,20 +1585,20 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     } else {
       document.documentElement.removeAttribute("data-theme");
     }
-    try{ localStorage.setItem(THEME_KEY, next); }catch(err){ /* ignore */ }
+    try{ localStorage.setItem(THEME_KEY, next); }catch(err){}
   });
 
   var state = {
     date: "",
     time: "",
     vibe: "",     // home | out | active | trip
-    subopt: "",   // the step-3 choice (its meaning depends on vibe — see suboptLabels)
-    leaf: "",     // the step-4 choice, only present for home / out>restaurant / out>bar
-    dessertBase: "", dessertSauce: "", dessertTopping: "", // only for home / out>restaurant
-    playlist: "", // background music choice — always present, every branch
-    note: "",     // free-text special request — always present, optional
-    quizA: "", quizB: "", // the fun pre-flow compatibility quiz — never affects the plan
-    phoneContract: false  // the "no phones" pledge checkbox, on the summary screen
+    subopt: "",   
+    leaf: "",     
+    dessertBase: "", dessertSauce: "", dessertTopping: "", 
+    playlist: "", 
+    note: "",     
+    quizA: "", quizB: "", 
+    phoneContract: false  
   };
 
   var playlistLabels = {
@@ -1750,27 +1624,21 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     active: "דייט אקטיבי / ספורטיבי 🏄‍♂️",
     trip: "לצאת לטיול או שופינג 🛍️"
   };
-  var vibeIcons = { home:"🏠", out:"🍾", active:"🏄‍♂️", trip:"🛍️" };
 
-  // step-3 option labels, flat across all branches (every value is unique)
   var suboptLabels = {
-    // home — "what are we doing tonight"
     parrot: "משחקים עם קוקו התוכי 🦜",
     garden: "יושבים בגינה בכיף 🏡",
     movieseries: "רואים סרט או סדרה 🎬",
     wine: "יושבים על בקבוק יין 🍷",
     paint: "מציירים ביחד 🎨",
-    // out
     restaurant: "ארוחה במסעדה מפנקת 🍽️",
     bar: "יוצאים לבר 🍸",
     cinema: "סרט בקולנוע 🍿",
     snooker: "משחק סנוקר / ביליארד 🎱",
-    // active
     seawalk: "הליכה בים 🌊",
     neighborhoodwalk: "הליכה כיפית בשכונה 🚶‍♂️",
     yoga: "שיעור יוגה זוגי 🧘‍♀️",
     surf: "גלישה זוגית - נתרסק ביחד על הגלים 🏄‍♀️",
-    // trip
     forest: "טיול רומנטי ביער 🌲",
     telaviv: "לסיבוב וטיול בתל אביב 🏙️",
     goldenmall: "שופינג בקניון הזהב 📀",
@@ -1779,8 +1647,6 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     telavivstreets: "שופינג ברחובות תל אביב 🛍️"
   };
 
-  // step-4 ("leaf") option labels, grouped by leaf-step key — not by subopt,
-  // since every home activity funnels into the same food/snacks question.
   var leafLabels = {
     home: {
       sushi: "סושי 🍣", thai: "תאילנדי 🇹🇭", italian: "איטלקי 🍝",
@@ -1800,36 +1666,25 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     }
   };
 
-  // which leaf step (if any) follows the current vibe/subopt combination.
-  // home always continues to its food/snacks step; out only continues for
-  // restaurant/bar (cinema and snooker go straight onward); active and trip
-  // never have a step 4.
   function leafGroupKey(){
     if(state.vibe === "home") return "home";
     if(state.vibe === "out" && (state.subopt === "restaurant" || state.subopt === "bar")) return state.subopt;
     return null;
   }
 
-  // the dessert builder only makes sense for a food-centric branch: any
-  // home evening, or an out>restaurant meal.
   function dessertApplies(){
     return state.vibe === "home" || (state.vibe === "out" && state.subopt === "restaurant");
   }
+
   function isDessertComplete(){
     return !!(state.dessertBase && state.dessertSauce && state.dessertTopping);
   }
 
-  // The full step sequence for the CURRENT branch (excluding "when" and
-  // "summary"), independent of how far it's actually been answered. Once
-  // vibe (and, for "out", subopt) are chosen, this is fixed — building it
-  // this way, rather than gating on answered-ness, keeps the progress
-  // trail's total stable as the user moves forward instead of growing/
-  // shrinking under them.
   function fullStepOrder(){
     var order = ["when", "vibe"];
     if(!state.vibe) return order;
     order.push("subopt-" + state.vibe);
-    if(state.vibe === "out" && !state.subopt) return order; // still ambiguous
+    if(state.vibe === "out" && !state.subopt) return order;
 
     var leafKey = leafGroupKey();
     if(leafKey) order.push("leaf-" + leafKey);
@@ -1859,13 +1714,12 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     path.push("playlist");
     if(!state.playlist) return path;
 
-    // "note" is optional — once reached, the recap is always reachable too
     path.push("note");
     path.push("summary");
     return path;
   }
 
-  var currentIndex = -1; // -1 = welcome
+  var currentIndex = -1;
   var navButtons = document.getElementById("navButtons");
   var backBtn = document.getElementById("backBtn");
   var nextBtn = document.getElementById("nextBtn");
@@ -1885,9 +1739,6 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     }
   }
 
-  // maps a .choices container's data-group attribute to the state field it
-  // drives. Shared by the click handler, the "surprise me" handler, and
-  // selection-restoring — one place that knows how every group maps to state.
   var groupStateKey = {
     vibe: "vibe",
     subopt: "subopt",
@@ -1900,19 +1751,13 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     quizB: "quizB"
   };
 
-  // a step's position within its branch's fixed sequence — found by position
-  // in fullStepOrder() rather than a hardcoded number, so it stays correct
-  // automatically as optional steps (dessert) come and go per branch.
   function slotIndexForStep(stepName){
     return fullStepOrder().indexOf(stepName);
   }
 
-  // how many question-steps this branch has in total. Used only to size the
-  // progress trail; falls back to a sensible guess whenever the branch isn't
-  // fully determined yet (vibe, and for "out" also subopt).
   function totalStepsForBranch(){
-    if(!state.vibe) return 7; // optimistic default: the richest common path
-    if(state.vibe === "out" && !state.subopt) return 6; // still ambiguous
+    if(!state.vibe) return 7;
+    if(state.vibe === "out" && !state.subopt) return 6;
     return fullStepOrder().length;
   }
 
@@ -1930,10 +1775,6 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     }
   }
 
-  // restores each .choices container's own selection from state, by its own
-  // data-group — handles both a step with one group (most steps) and a step
-  // with several independent groups answered side by side (the dessert
-  // builder's base/sauce/topping).
   function syncSelectedCards(stepName){
     var el = stepEl(stepName);
     if(!el) return;
@@ -1954,13 +1795,10 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     if(stepName.indexOf("leaf-") === 0) return !!state.leaf;
     if(stepName === "dessert") return isDessertComplete();
     if(stepName === "playlist") return !!state.playlist;
-    if(stepName === "note") return true; // optional
+    if(stepName === "note") return true;
     return true;
   }
 
-  // "note" is now the last question for every branch (it always immediately
-  // precedes the recap, right after the always-optional special-request
-  // box), so it's the only step that's ever final.
   function isFinalQuestionStep(stepName){
     return stepName === "note";
   }
@@ -2003,9 +1841,6 @@ document.getElementById("dayChips").addEventListener("click", function(e){
   }
 
   function goBack(){
-    // "when" is step 0 and has no step before it (the welcome modal, not a
-    // wizard step, already came and went) — backBtn is disabled/hidden at
-    // currentIndex 0, so this guard is just a safety net.
     if(currentIndex <= 0) return;
     var path = currentPath();
     var prevName = path[currentIndex - 1];
@@ -2027,13 +1862,6 @@ document.getElementById("dayChips").addEventListener("click", function(e){
   });
 
   // ---------- compatibility quiz ----------
-  // Pure fun, outside the real wizard/progress trail — its answers never
-  // affect the plan and it always resolves to a 100% match. The
-  // reveal-button enablement check itself lives inside the generic step
-  // click handler below (search "quiz" there) — NOT a second listener on
-  // this same element, since a second bubble-phase listener registered
-  // earlier in the script would fire before the generic one updates
-  // state.quizA/quizB, always reading stale state.
   var quizRevealBtn = document.getElementById("quizRevealBtn");
   var quizResult = document.getElementById("quizResult");
 
@@ -2047,13 +1875,59 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     goToStep("when", "forward");
   });
 
-  // ---------- random-pick helper (used by the Wheel of Fortune) ----------
-  // Clicks one random card within a SPECIFIC step+group (not a global query
-  // by group name alone — several steps share the same group name, e.g.
-  // every subopt-* step uses data-group="subopt", so a global query would
-  // let the wheel pick a subopt belonging to the wrong vibe entirely).
-  // .click() fires reliably even while the step isn't the active/visible
-  // one, so this works on steps the wheel is filling in behind the scenes.
+  // ---------- day & time quick choices ----------
+  function formatDateToISO(d) {
+    var year = d.getFullYear();
+    var month = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    return year + '-' + month + '-' + day;
+  }
+
+  document.getElementById("dayChips").addEventListener("click", function(e){
+    var btn = e.target.closest(".chip-btn");
+    if(!btn) return;
+
+    var today = new Date();
+    var targetDate = new Date();
+
+    if(btn.dataset.dayOffset !== undefined) {
+      targetDate.setDate(today.getDate() + parseInt(btn.dataset.dayOffset, 10));
+    } else if(btn.dataset.targetDay !== undefined) {
+      var targetDayIndex = parseInt(btn.dataset.targetDay, 10);
+      var diff = targetDayIndex - today.getDay();
+      if (diff <= 0) diff += 7;
+      targetDate.setDate(today.getDate() + diff);
+    }
+
+    var formatted = formatDateToISO(targetDate);
+    var dateInput = document.getElementById("dateInput");
+    dateInput.value = formatted;
+    state.date = formatted;
+
+    document.querySelectorAll("#dayChips .chip-btn").forEach(function(b){ b.classList.remove("selected"); });
+    btn.classList.add("selected");
+
+    nextBtn.disabled = !isStepValid("when");
+    openWheelBtn.disabled = !isStepValid("when");
+  });
+
+  document.getElementById("timeChips").addEventListener("click", function(e){
+    var btn = e.target.closest(".chip-btn");
+    if(!btn) return;
+
+    var selectedTime = btn.dataset.time;
+    var timeInput = document.getElementById("timeInput");
+    timeInput.value = selectedTime;
+    state.time = selectedTime;
+
+    document.querySelectorAll("#timeChips .chip-btn").forEach(function(b){ b.classList.remove("selected"); });
+    btn.classList.add("selected");
+
+    nextBtn.disabled = !isStepValid("when");
+    openWheelBtn.disabled = !isStepValid("when");
+  });
+
+  // ---------- wheel of fortune ----------
   function clickRandomCardInStep(stepName, groupName){
     var stepSection = document.querySelector('.step[data-step="' + stepName + '"]');
     if(!stepSection) return;
@@ -2064,13 +1938,6 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     cards[Math.floor(Math.random() * cards.length)].click();
   }
 
-  // Randomizes every remaining category (vibe → subopt → leaf → dessert →
-  // playlist), respecting the same branching rules as the manual flow —
-  // each pick is scoped to the step that matches what was JUST picked, so
-  // the result is always a valid combo (never e.g. an "active" vibe paired
-  // with a restaurant cuisine). Date/time and the note are untouched: a
-  // real date needs a real time she already chose, and a random note
-  // wouldn't mean anything.
   function randomizeFullDate(){
     clickRandomCardInStep("vibe", "vibe");
     clickRandomCardInStep("subopt-" + state.vibe, "subopt");
@@ -2097,7 +1964,6 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     return parts.filter(Boolean).join(" + ");
   }
 
-  // ---------- wheel of fortune ----------
   var openWheelBtn = document.getElementById("openWheelBtn");
   var wheelModal = document.getElementById("wheelModal");
   var wheelDisc = document.getElementById("wheelDisc");
@@ -2107,11 +1973,6 @@ document.getElementById("dayChips").addEventListener("click", function(e){
   var wheelRotation = 0;
   var wheelSpinning = false;
 
-  // simple synthesized "tick" (no audio file needed) — created lazily on
-  // the first spin, inside the click handler, so it satisfies browsers'
-  // autoplay-needs-a-user-gesture policies. Fails silently if Web Audio
-  // isn't available (older browsers, restricted contexts) — the spin still
-  // works perfectly well without sound.
   var audioCtx = null;
   function playTick(){
     try{
@@ -2125,11 +1986,9 @@ document.getElementById("dayChips").addEventListener("click", function(e){
       osc.connect(gain).connect(audioCtx.destination);
       osc.start();
       osc.stop(audioCtx.currentTime + 0.07);
-    }catch(err){ /* no sound — spin still works */ }
+    }catch(err){}
   }
 
-  // ticks that get further apart over time, like a real wheel's ratchet
-  // slowing down as it loses momentum
   function scheduleTicks(totalDuration){
     var elapsed = 0;
     var gap = 55;
@@ -2162,7 +2021,7 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     spinWheelBtn.disabled = true;
 
     var SPIN_MS = 3600;
-    wheelRotation += 1800 + Math.floor(Math.random() * 720); // 5-7 extra full turns
+    wheelRotation += 1800 + Math.floor(Math.random() * 720);
     wheelDisc.style.transform = "rotate(" + wheelRotation + "deg)";
     scheduleTicks(SPIN_MS);
 
@@ -2173,7 +2032,7 @@ document.getElementById("dayChips").addEventListener("click", function(e){
       spinWheelBtn.hidden = true;
       wheelSpinning = false;
       spinWheelBtn.disabled = false;
-      launchConfetti(); // celebratory confetti the instant it lands
+      launchConfetti();
     }, SPIN_MS);
   }
 
@@ -2204,15 +2063,9 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     openWheelBtn.disabled = !isStepValid("when");
   });
   document.getElementById("noteInput").addEventListener("input", function(e){
-    state.note = e.target.value; // free text, optional — never gates nextBtn
+    state.note = e.target.value;
   });
 
-  // Delegated at the step level (not per .choices div): a step can hold
-  // several .choices containers that are either one logical group spread
-  // across two sections (leaf-home's food + snacks share group="leaf") or
-  // several independent groups answered side by side (the dessert
-  // builder's base/sauce/topping). Selection is cleared per *matching
-  // data-group value* so independent sibling groups don't clobber each other.
   document.querySelectorAll(".step").forEach(function(stepSection){
     stepSection.addEventListener("click", function(e){
       var btn = e.target.closest(".choice-card");
@@ -2227,8 +2080,6 @@ document.getElementById("dayChips").addEventListener("click", function(e){
       if(groupName === "vibe"){
         state.subopt = "";
         state.leaf = "";
-        // state.playlist / dessert*/note are deliberately left untouched —
-        // they don't depend on the date's vibe/branch
       } else if(groupName === "subopt"){
         state.leaf = "";
       }
@@ -2238,16 +2089,13 @@ document.getElementById("dayChips").addEventListener("click", function(e){
         b.classList.toggle("selected", b === btn);
       });
 
-      // tap feedback: a brief "pop" on the card that was just chosen
       btn.classList.remove("just-selected");
-      void btn.offsetWidth; // restart the animation even on repeated taps of the same card
+      void btn.offsetWidth;
       btn.classList.add("just-selected");
       window.setTimeout(function(){ btn.classList.remove("just-selected"); }, 340);
 
       updateNavButtons(stepSection.dataset.step);
 
-      // the quiz lives outside the main wizard (no sticky nav), so its own
-      // "reveal" button is enabled here instead, once both answered
       if(stepSection.dataset.step === "quiz"){
         quizRevealBtn.disabled = !(state.quizA && state.quizB);
       }
@@ -2257,12 +2105,6 @@ document.getElementById("dayChips").addEventListener("click", function(e){
   nextBtn.addEventListener("click", goNext);
   backBtn.addEventListener("click", goBack);
 
-  // the summary page itself has no visible nav bar — this is the only way
-  // back into the flow to tweak an earlier answer (whether she walked the
-  // wizard by hand or the wheel filled it all in at once). Jumping to
-  // "note" (always the last real step) re-enables the normal back button,
-  // from which she can step backward through anything and forward again;
-  // goNext() from "note" already always continues to "summary".
   document.getElementById("editDetailsBtn").addEventListener("click", function(){
     goToStep("note", "back");
   });
@@ -2275,7 +2117,7 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     lastFortuneIndex = -1;
     state = { date:"", time:"", vibe:"", subopt:"", leaf:"",
       dessertBase:"", dessertSauce:"", dessertTopping:"", playlist:"", note:"",
-      quizA: state.quizA, quizB: state.quizB, // the quiz isn't re-shown on restart, so its answers just carry over harmlessly
+      quizA: state.quizA, quizB: state.quizB,
       phoneContract: false };
     document.getElementById("dateInput").value = "";
     document.getElementById("timeInput").value = "";
@@ -2283,6 +2125,7 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     document.getElementById("phoneContract").checked = false;
     openWheelBtn.disabled = true;
     document.querySelectorAll(".choice-card.selected").forEach(function(b){ b.classList.remove("selected"); });
+    document.querySelectorAll(".chip-btn.selected").forEach(function(b){ b.classList.remove("selected"); });
     goToStep("when", "forward");
   });
 
@@ -2301,7 +2144,7 @@ document.getElementById("dayChips").addEventListener("click", function(e){
   var scratchPrize = "";
   var scratchRevealed = false;
   var scratchedCells = null;
-  var SCRATCH_GRID = 18; // percentage tracked via a cheap grid, not a full pixel scan
+  var SCRATCH_GRID = 18;
   var isScratching = false;
 
   function drawScratchSurface(){
@@ -2329,7 +2172,6 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     scratchCtx.fillText("גרדי כאן לגילוי הפרס שלך 🎁", w / 2, h / 2);
   }
 
-  // called fresh every time the summary screen loads — new prize, new card
   function initScratchCard(){
     scratchPrize = scratchPrizes[Math.floor(Math.random() * scratchPrizes.length)];
     scratchPrizeEl.textContent = scratchPrize;
@@ -2351,7 +2193,7 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     return Object.keys(scratchedCells).length / total;
   }
 
-  var SCRATCH_RADIUS = 24; // px — the brush size, shared with the % tracker below
+  var SCRATCH_RADIUS = 24;
 
   function scratchAt(x, y){
     scratchCtx.globalCompositeOperation = "destination-out";
@@ -2361,10 +2203,7 @@ document.getElementById("dayChips").addEventListener("click", function(e){
 
     var w = scratchCanvas.clientWidth, h = scratchCanvas.clientHeight;
     if(w <= 0 || h <= 0) return;
-    // mark every grid cell the brush circle actually covers (not just the
-    // single cell under the sample point) — otherwise the tracked
-    // percentage lags far behind the visually erased area, and the 50%
-    // threshold barely triggers even after heavy scratching.
+
     var cellW = w / SCRATCH_GRID, cellH = h / SCRATCH_GRID;
     var colSpan = Math.ceil(SCRATCH_RADIUS / cellW);
     var rowSpan = Math.ceil(SCRATCH_RADIUS / cellH);
@@ -2385,17 +2224,17 @@ document.getElementById("dayChips").addEventListener("click", function(e){
 
   function revealScratchPrize(){
     scratchRevealed = true;
-    scratchCanvas.classList.add("scratch-revealed"); // fades the rest of the foil away
+    scratchCanvas.classList.add("scratch-revealed");
     launchConfetti();
     playRevealChime();
-    updateWhatsAppLink(); // the WhatsApp message can now include the won prize
+    updateWhatsAppLink();
   }
 
   function playRevealChime(){
     try{
       if(!audioCtx){ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
       var now = audioCtx.currentTime;
-      [523.25, 659.25, 783.99].forEach(function(freq, i){ // C5, E5, G5 — a little "win" arpeggio
+      [523.25, 659.25, 783.99].forEach(function(freq, i){
         var osc = audioCtx.createOscillator();
         var gain = audioCtx.createGain();
         osc.type = "sine";
@@ -2408,7 +2247,7 @@ document.getElementById("dayChips").addEventListener("click", function(e){
         osc.start(start);
         osc.stop(start + 0.4);
       });
-    }catch(err){ /* no sound — reveal still works */ }
+    }catch(err){}
   }
 
   scratchCanvas.addEventListener("pointerdown", function(e){
@@ -2430,7 +2269,7 @@ document.getElementById("dayChips").addEventListener("click", function(e){
   // ---------- "no phones" romantic contract ----------
   document.getElementById("phoneContract").addEventListener("change", function(e){
     state.phoneContract = e.target.checked;
-    updateWhatsAppLink(); // reflect it in the pre-filled message immediately
+    updateWhatsAppLink();
   });
 
   // ---------- fortune teller ----------
@@ -2479,10 +2318,9 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     }
   }
 
-  // short numeric form for the polaroid caption, e.g. "08.10.2026"
   function formatDateShort(dateStr){
     if(!dateStr) return "";
-    var parts = dateStr.split("-"); // YYYY-MM-DD
+    var parts = dateStr.split("-");
     if(parts.length !== 3) return dateStr;
     return parts[2] + "." + parts[1] + "." + parts[0];
   }
@@ -2498,7 +2336,6 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     });
   }
 
-  // a light, smart/funny dress-code suggestion based on the overall vibe
   function getDressCode(){
     if(state.vibe === "home") return "פיג'מה או בגדים הכי נוחים בבית 🛋️";
     if(state.vibe === "active") return "בגדי ספורט / בגד ים 👙";
@@ -2514,13 +2351,11 @@ document.getElementById("dayChips").addEventListener("click", function(e){
   }
 
   function renderSummary(){
-    initScratchCard(); // a fresh randomized prize + unscratched card every time
+    initScratchCard();
 
     document.getElementById("polaroidCaption").textContent =
-      "Date Night: Itay & My Love ❤️ - " + formatDateShort(state.date);
+      "Date Night: Itay & My Love ❤️️ - " + formatDateShort(state.date);
 
-    // boarding-pass ticket: the headline facts (names are fixed — it's our
-    // date), date/time/vibe/dress-code
     document.getElementById("bpDate").textContent = formatDateHe(state.date);
     document.getElementById("bpTime").textContent = state.time;
     document.getElementById("bpVibe").textContent = vibeLabels[state.vibe] || "";
@@ -2532,8 +2367,6 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     var leafText = leafTextFor();
     var dessertText = getDessertText();
 
-    // date/time/vibe/dress-code already live on the ticket above — the list
-    // covers everything else so nothing is shown twice
     var rows = [
       { icon:"✨", sub:"תוכנית", text: suboptLabels[state.subopt] || "" }
     ];
@@ -2553,9 +2386,6 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     rows.forEach(function(r){
       var row = document.createElement("div");
       row.className = "summary-row";
-      // r.text may be the free-text special-request note (user input) —
-      // escaped since this is built via innerHTML, so something as plausible
-      // as "<3" in her note renders as text instead of breaking the markup
       row.innerHTML = '<span class="icon">' + r.icon + '</span>' +
         '<span class="text"><span class="sub">' + r.sub + '</span>' + escapeHtml(r.text) + '</span>';
       list.appendChild(row);
@@ -2657,7 +2487,7 @@ document.getElementById("dayChips").addEventListener("click", function(e){
   var confettiToken = 0;
 
   function stopConfetti(){
-    confettiToken++; // invalidates any in-flight animation loop
+    confettiToken++;
     var canvas = document.getElementById("confetti-canvas");
     if(canvas){
       var ctx = canvas.getContext("2d");
@@ -2731,7 +2561,7 @@ document.getElementById("dayChips").addEventListener("click", function(e){
 
     var start = null;
     function frame(ts){
-      if(myToken !== confettiToken){ return; } // superseded by a restart/new launch
+      if(myToken !== confettiToken){ return; }
 
       if(!start) start = ts;
       var elapsed = ts - start;
@@ -2755,9 +2585,7 @@ document.getElementById("dayChips").addEventListener("click", function(e){
     window.addEventListener("resize", resize);
   }
 
-  // init — the fun compatibility quiz is already ready behind the welcome
-  // modal, so dismissing the modal reveals it instantly with no extra tap.
-  // The real wizard (step 1, "when") only starts once she taps through the quiz.
+  // init
   document.body.classList.add("modal-open");
   showStep("quiz");
   document.getElementById("welcomeModalBtn").focus();
