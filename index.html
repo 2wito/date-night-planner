@@ -29,6 +29,37 @@
     --radius-pill: 999px;
     --ease: cubic-bezier(.22,1,.36,1);
 
+
+    .quick-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  margin-bottom: 14px;
+}
+.chip-btn {
+  appearance: none;
+  border: 1px solid var(--pink-soft);
+  background: var(--card);
+  color: var(--ink);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-family: 'Assistant', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+}
+.chip-btn:hover {
+  border-color: var(--rose-mid);
+  background: var(--pink-soft-2);
+}
+.chip-btn.selected {
+  background: var(--rose-mid);
+  color: #fff;
+  border-color: var(--rose-deep);
+}
+
     /* fixed deep-berry pair used ONLY for gradient fills behind white text
        (primary buttons, selected cards) — kept constant across themes on
        purpose, since --rose-deep/--rose-mid themselves flip to a bright
@@ -1266,11 +1297,32 @@
                 <input type="date" id="dateInput" />
               </label>
             </div>
+                        <!-- בחירה מהירה של ימים -->
+            <div class="quick-chips" id="dayChips">
+              <button type="button" class="chip-btn" data-day-offset="0">היום</button>
+              <button type="button" class="chip-btn" data-day-offset="1">מחר</button>
+              <button type="button" class="chip-btn" data-day-offset="2">מחרתיים</button>
+              <button type="button" class="chip-btn" data-target-day="4">חמישי הקרוב</button>
+              <button type="button" class="chip-btn" data-target-day="5">שישי הקרוב</button>
+              <button type="button" class="chip-btn" data-target-day="6">שבת הקרובה</button>
+            </div>
             <div class="field">
+
+
+
+                        <!-- בחירה מהירה של שעות -->
+          <div class="quick-chips" id="timeChips">
+            <button type="button" class="chip-btn" data-time="19:00">19:00</button>
+            <button type="button" class="chip-btn" data-time="19:30">19:30</button>
+            <button type="button" class="chip-btn" data-time="20:00">20:00</button>
+            <button type="button" class="chip-btn" data-time="20:30">20:30</button>
+            <button type="button" class="chip-btn" data-time="21:00">21:00</button>
+            <button type="button" class="chip-btn" data-time="21:30">21:30</button>
+          </div>
               <span class="field-icon">🕐</span>
               <label>
                 <span class="field-label">שעה</span>
-                <input type="time" id="timeInput" />
+                <input type="time" id="timeInput" step="1800" />
               </label>
             </div>
           </div>
@@ -1583,6 +1635,59 @@
   </main>
 
 <script>
+
+
+  document.getElementById("timeChips").addEventListener("click", function(e){
+  var btn = e.target.closest(".chip-btn");
+  if(!btn) return;
+
+  var selectedTime = btn.dataset.time;
+  var timeInput = document.getElementById("timeInput");
+  timeInput.value = selectedTime;
+  state.time = selectedTime;
+
+  document.querySelectorAll("#timeChips .chip-btn").forEach(function(b){ b.classList.remove("selected"); });
+  btn.classList.add("selected");
+
+  nextBtn.disabled = !isStepValid("when");
+  openWheelBtn.disabled = !isStepValid("when");
+});
+
+  function formatDateToISO(d) {
+  var year = d.getFullYear();
+  var month = String(d.getMonth() + 1).padStart(2, '0');
+  var day = String(d.getDate()).padStart(2, '0');
+  return year + '-' + month + '-' + day;
+}
+
+document.getElementById("dayChips").addEventListener("click", function(e){
+  var btn = e.target.closest(".chip-btn");
+  if(!btn) return;
+
+  var today = new Date();
+  var targetDate = new Date();
+
+  if(btn.dataset.dayOffset !== undefined) {
+    targetDate.setDate(today.getDate() + parseInt(btn.dataset.dayOffset, 10));
+  } else if(btn.dataset.targetDay !== undefined) {
+    var targetDayIndex = parseInt(btn.dataset.targetDay, 10);
+    var diff = targetDayIndex - today.getDay();
+    if (diff <= 0) diff += 7; // מעביר ליום הקרוב בשבוע הקרוב
+    targetDate.setDate(today.getDate() + diff);
+  }
+
+  var formatted = formatDateToISO(targetDate);
+  var dateInput = document.getElementById("dateInput");
+  dateInput.value = formatted;
+  state.date = formatted;
+
+  document.querySelectorAll("#dayChips .chip-btn").forEach(function(b){ b.classList.remove("selected"); });
+  btn.classList.add("selected");
+
+  nextBtn.disabled = !isStepValid("when");
+  openWheelBtn.disabled = !isStepValid("when");
+});
+  
 (function(){
   "use strict";
 
@@ -2088,11 +2193,13 @@
   // ---------- wiring ----------
   document.getElementById("dateInput").addEventListener("input", function(e){
     state.date = e.target.value;
+    document.querySelectorAll("#dayChips .chip-btn").forEach(function(b){ b.classList.remove("selected"); });
     nextBtn.disabled = !isStepValid("when");
     openWheelBtn.disabled = !isStepValid("when");
   });
   document.getElementById("timeInput").addEventListener("input", function(e){
     state.time = e.target.value;
+    document.querySelectorAll("#timeChips .chip-btn").forEach(function(b){ b.classList.remove("selected"); });
     nextBtn.disabled = !isStepValid("when");
     openWheelBtn.disabled = !isStepValid("when");
   });
